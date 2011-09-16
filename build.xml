@@ -1,0 +1,27 @@
+<!-- Build file for Combination Pizza Hut and Taco Bell. Builds both 
+     subprojects, and puts them in a package. A COMBINATION package. -->
+
+<project name="CombinationPizzaHutAndTacoBell" default="all" basedir=".">
+
+  <property name="jarname" value="PIZZAHUT.jar" />
+  <property name="swfname" value="TACOBELL.swf" />
+
+  <property name="build" value="COMBINATION_PIZZAHUT_AND_TACOBELL" />
+
+  <target name="all" depends="prepare">
+    <ant dir="pizzahut" />
+    <ant dir="tacobell" />
+    <move file="pizzahut/${jarname}" todir="${build}" />
+    <move file="tacobell/${swfname}" todir="${build}" />
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="${build}" />
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}" />
+    <ant dir="pizzahut" target="clean" />
+    <ant dir="tacobell" target="clean" />
+  </target>
+</project>

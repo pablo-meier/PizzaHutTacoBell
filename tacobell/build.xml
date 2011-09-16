@@ -1,0 +1,39 @@
+<!-- Build file for TacoBell, the XSplit swf plugin that renders replay data
+     in the most pretty way possible. Works best with PizzaHut. -->
+
+<project name="TacoBell" default="compile" basedir=".">
+
+  <property name="src" location="src" />
+  <property name="lib" location="libs" />
+  <property name="config" location="config.xml" />
+  <property name="swfname" location="TACOBELL.swf" />
+
+  <property name="package-path" value="${src}/com/morepaul/tacobell" />
+
+  <!-- THIS IS MY MACHINE I WILL HARDCODE WHATEVER I WANT -->
+  <property name="FLEX_HOME" location="/Users/pmeier/Desktop/SDKs/adobe_flex_sdk/" />
+
+
+  <!-- Check that we have an SDK and other lame foreplay... -->
+  <target name="flexcheck" unless="FLEX_HOME">
+    <fail message='You must set the FLEX_HOME property pointing to your flex 
+                   SDK, eg. ant -DFLEX_HOME="/Applications/Adobe Flex Builder 3/sdks/3.2.0"'/>
+  </target>
+
+  <target name="flexinit" depends="flexcheck">
+    <taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
+    <property name="flex.finished" value="true"/>
+  </target>
+
+  <target name="clean">
+    <delete file="${swfname}" />
+  </target>
+
+  <!-- Now, THE MEAT! -->
+  <target name="compile" depends="flexinit">
+    <mxmlc file="${package-path}/TacoBellPluginMain.as"
+           actionscript-file-encoding="UTF-8">
+      <load-config filename="${config}" />
+    </mxmlc>
+  </target>
+</project>

@@ -1,0 +1,42 @@
+Given that we want the win screen to contain this information:
+
+--------
+Player League - Player Name - Player Race | Opponent...
+
+APM
+Average Income
+Resources Gathered
+Resources Spent
+Workers Built
+Units Created
+Units Lost
+
+Map Picture - Map Name - Game Time
+Did Loser gg?
+--------
+
+
+The text we'll take as input will look like this:
+
+--------
+1v1
+1. League - Name - Race
+2. League - Name - Race ...
+...
+1.
+AvgInc = 
+RscGth = 
+Spnt =
+Created =
+Lost = 
+2.
+AvgInc = 
+RscGth = 
+Spnt = 
+Created = 
+Lost = 
+...
+MapPicture = 
+MapName = 
+LoserGG = 
+--------------
