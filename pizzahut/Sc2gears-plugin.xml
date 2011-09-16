@@ -3,23 +3,28 @@
 <!-- Plugin descriptor, contains plugin meta-data. -->
 <plugin docVersion="1.0">
 
-<name>PIZZAHUT</name>
+  <name>PIZZAHUT</name>
 
-<authorFirstName>Paul</authorFirstName>
-<authorLastName>Meier</authorLastName>
+  <authorFirstName>Paul</authorFirstName>
+  <authorLastName>Meier</authorLastName>
+  
+  <authorEmail>pablo.a.meier@gmail.com</authorEmail>
+  <version>1.0</version>
+  <releaseDate>2011-09-15</releaseDate> 
 
-<authorEmail>pablo.a.meier@gmail.com</authorEmail>
-<version>1.0</version>
-<releaseDate>2011-09-15</releaseDate> 
-<apiVersion>1.0.1</apiVersion> <!-- Plugin API version implemented/used by the plugin. -->
-<homePage>https://github.com/paul-meier/pizzahuttacobell/</homePage>
-<!-- Description can be plain text or HTML text, can contain multiple lines. -->
-<description isHtml="true"><![CDATA[<br>PIZZAHUT creates XML files with relevant statistics for new replays. This is then used by TACOBELL (or anyone else, really) to render that data "live".]]></description>
+  <apiVersion>2.0</apiVersion> <!-- Plugin API version implemented/used by the plugin. -->
 
-<!--
-The main class must implement the "hu.belicza.andras.sc2gearspluginapi.Plugin" interface,
-and must have a public no-arg constructor (a constructor that takes no arguments).
-The main class must also be unique: cannot be added 2 plugins with the same main class!
--->
-<mainClass>com.morepaul.pizzahut.PizzaHutPluginMain</mainClass>
+  <homePage>https://github.com/paul-meier/pizzahuttacobell/</homePage>
+
+  <!-- Description can be plain text or HTML text, can contain multiple lines. -->
+  <description isHtml="true"><![CDATA[
+  <br>PIZZAHUT creates XML files with relevant statistics for new replays. This is then used by TACOBELL (or anyone else, really) to render that data "live".
+  ]]></description>
+  
+  <!--
+  The main class must implement the "hu.belicza.andras.sc2gearspluginapi.Plugin" interface,
+  and must have a public no-arg constructor (a constructor that takes no arguments).
+  The main class must also be unique: cannot be added 2 plugins with the same main class!
+  -->
+  <mainClass>com.morepaul.pizzahut.PizzaHutPluginMain</mainClass>
 </plugin>

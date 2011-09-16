@@ -18,25 +18,3 @@ Did Loser gg?
 
 The text we'll take as input will look like this:
 
---------
-1v1
-1. League - Name - Race
-2. League - Name - Race ...
-...
-1.
-AvgInc = 
-RscGth = 
-Spnt =
-Created =
-Lost = 
-2.
-AvgInc = 
-RscGth = 
-Spnt = 
-Created = 
-Lost = 
-...
-MapPicture = 
-MapName = 
-LoserGG = 
---------------

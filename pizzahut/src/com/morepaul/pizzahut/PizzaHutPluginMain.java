@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2011 Paul Meier
+/* * Copyright (c) 2011 Paul Meier
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +27,17 @@ import hu.belicza.andras.sc2gearspluginapi.PluginDescriptor;
 import hu.belicza.andras.sc2gearspluginapi.PluginServices;
 import hu.belicza.andras.sc2gearspluginapi.SettingsControl;
 import hu.belicza.andras.sc2gearspluginapi.api.LanguageApi;
+import hu.belicza.andras.sc2gearspluginapi.api.ProfileApi;
+import hu.belicza.andras.sc2gearspluginapi.api.ReplayUtilsApi;
 import hu.belicza.andras.sc2gearspluginapi.api.SettingsApi;
-import hu.belicza.andras.sc2gearspluginapi.api.listener.DiagnosticTestFactory;
+import hu.belicza.andras.sc2gearspluginapi.api.listener.ProfileListener;
 import hu.belicza.andras.sc2gearspluginapi.api.listener.NewReplayListener;
+import hu.belicza.andras.sc2gearspluginapi.api.profile.IProfile;
 import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.IPlayer;
+import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.IPlayerId;
 import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.IReplay;
 import hu.belicza.andras.sc2gearspluginapi.impl.BasePlugin;
 import hu.belicza.andras.sc2gearspluginapi.impl.BaseSettingsControl;
-import hu.belicza.andras.sc2gearspluginapi.impl.DiagnosticTest;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,6 +45,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -70,10 +73,20 @@ public class PizzaHutPluginMain extends BasePlugin
 {
 	
 	/** Reference to our new replay listener.     */
-	private NewReplayListener _newReplayListener;
+	private NewReplayListener m_newReplayListener;
 	
-	/** Reference to our diagnostic test factory. */
-	private DiagnosticTestFactory _diagnosticTestFactory;
+	/** Replay Utils to calculate API. */
+	private ReplayUtilsApi m_replayUtils;
+
+	/** ProfileApi to fetch the player data. */
+	private ProfileApi m_profileApi;
+
+	/** XML tools. */
+	private DocumentBuilderFactory m_docFactory; 
+	private DocumentBuilder m_docBuilder; 
+
+	/** Storage for fetched profiles. */
+	private HashMap<String, IProfile> m_profiles;
 
 	/** Attributes we display for each player. */
 	private enum PlayerAttribute 
@@ -105,29 +118,27 @@ public class PizzaHutPluginMain extends BasePlugin
 		// Call the init() implementation of the BasePlugin:
 		super.init( pluginDescriptor, pluginServices, generalServices );
 		
-		// Register a diagnostic test to check the pre-conditions of this plugin:
-		generalServices.getCallbackApi().addDiagnosticTestFactory( _diagnosticTestFactory = new DiagnosticTestFactory() {
-			@Override
-			public DiagnosticTest createDiagnosticTest() {
-				return new DiagnosticTest( generalServices.getLanguageApi().getText( "tsovplugin.diagnosticTest.name" ) ) {
-					@Override
-					public void execute() {
-						if ( !generalServices.getInfoApi().isReplayAutoSaveEnabled() ) {
-							result  = Result.WARNING;
-							details = generalServices.getLanguageApi().getText( "tsovplugin.diagnosticTest.warning.autoSaveDisabled" );
-						}
-						else {
-							result  = Result.OK;
-						}
-					}
-				};
-			}
-		} );
-		
+		m_replayUtils = generalServices.getReplayUtilsApi();
+		m_profileApi = generalServices.getProfileApi();
+		m_profiles = new HashMap<String, IProfile>();
+
+		System.out.println("[PIZZAHUT] initing!");
+		try
+		{
+			// Initialize your XML components.
+			m_docFactory = DocumentBuilderFactory.newInstance();
+			m_docBuilder = m_docFactory.newDocumentBuilder();
+		}
+		catch (ParserConfigurationException pce)
+		{
+			pce.printStackTrace();
+		} 
+	
 		// Register a new replay listener
-		generalServices.getCallbackApi().addNewReplayListener( _newReplayListener = new NewReplayListener() {
+		generalServices.getCallbackApi().addNewReplayListener( m_newReplayListener = new NewReplayListener() {
 			@Override
 			public void newReplayDetected( final File replayFile ) {
+				m_profiles.clear();
 
 				// Cached info is enough for us: we acquire replay with ReplayFactory.getReplay()
 				final IReplay replay = generalServices.getReplayFactoryApi().getReplay( replayFile.getAbsolutePath(), null );
@@ -135,29 +146,58 @@ public class PizzaHutPluginMain extends BasePlugin
 				{
 					return; // Failed to parse replay
 				}
-				
+				System.out.println("[PIZZAHUT] Got replay!");
+
 				IPlayer[] players = replay.getPlayers();
+				for (int i = 0; i < players.length; ++i)
+				{
+					final IPlayerId id = players[i].getPlayerId();
+					final String name = id.getName();
+					m_profileApi.queryProfile(id,
+											new ProfileListener() {
+												@Override
+												public void profileReady(IProfile profile, boolean isAnotherRetrievingInProgress)
+												{
+													m_profiles.put(name, profile);
+												}
+											},
+											false,
+											false);
+				}
 				int numPlayers = players.length;
+
+				int gameLength = replay.getGameLengthSec();
+				double minutes = gameLength / 60;
 	
+				System.out.println("numPlayers is "+numPlayers);
 				ArrayList<HashMap<PlayerAttribute, String>> playerInfo = new ArrayList<HashMap<PlayerAttribute,String>>(numPlayers);
 
-				for (int i = 0; i < playerInfo.size(); ++i)
+				for (int i = 0; i < numPlayers; ++i)
 				{
 					HashMap<PlayerAttribute, String> thisSet = new HashMap<PlayerAttribute, String>();
 					thisSet.put(PlayerAttribute.NAME, players[i].getPlayerId().getName());
 					thisSet.put(PlayerAttribute.RACE, players[i].getRaceString());
-					thisSet.put(PlayerAttribute.APM, "100");
-					thisSet.put(PlayerAttribute.WORKERS_BUILT, "15");
 
-					playerInfo.set(i, thisSet);
+					int apm = m_replayUtils.calculatePlayerApm(replay, players[i]);
+					thisSet.put(PlayerAttribute.APM, Integer.toString(apm));
+
+					playerInfo.add(i, thisSet);
 				}
 
 				HashMap<MatchAttribute,String> matchInfo = new HashMap<MatchAttribute,String>();
-				matchInfo.put(MatchAttribute.TIME, "15:06");
-				matchInfo.put(MatchAttribute.MAP, "Shakuras Plateau");
-				matchInfo.put(MatchAttribute.LOSER_GG, "false");
 
+				int wholeMinutes = (int) Math.floor(minutes);
+				int seconds = (int) gameLength - (wholeMinutes * 60);
+				matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + Integer.toString(seconds));
+
+				matchInfo.put(MatchAttribute.MAP, replay.getMapName());
+
+				matchInfo.put(MatchAttribute.LOSER_GG, "true");
+
+
+				System.out.println("[PIZZAHUT] Filled Hashes, now to XML!");
 				printXmlFile(playerInfo, matchInfo);
+				System.out.println("[PIZZAHUT] I'M AT THE PIZZA HUT!");
 			}
 		} );
 	}
@@ -166,22 +206,8 @@ public class PizzaHutPluginMain extends BasePlugin
 	@Override
 	public void destroy()
 	{
-		// Remove our diagnostic test factory
-		generalServices.getCallbackApi().removeDiagnosticTestFactory( _diagnosticTestFactory );
 		// Remove our new replay listener
-		generalServices.getCallbackApi().removeNewReplayListener( _newReplayListener );
-	}
-	
-	/**
-	 * Checks if the string setting specified by its key is missing.
-	 * A string setting is missing if its value is null or its length is zero.
-	 * @param key key of the setting to check
-	 * @return true if the setting specified by its key is missing; false otherwise
-	 */
-	private boolean isStringSettingMissing( final String key )
-	{
-		final String value = pluginServices.getSettingsApi().getString( key );
-		return value == null || value.length() == 0;
+		generalServices.getCallbackApi().removeNewReplayListener( m_newReplayListener );
 	}
 
 
@@ -191,11 +217,8 @@ public class PizzaHutPluginMain extends BasePlugin
 	private void printXmlFile(ArrayList<HashMap<PlayerAttribute, String>> players, HashMap<MatchAttribute,String> match)
 	{
 	  try {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-			
 			// root element
-			Document doc = docBuilder.newDocument();
+			Document doc = m_docBuilder.newDocument();
 			Element rootElement = doc.createElement("replay");
 			doc.appendChild(rootElement);
 
@@ -208,7 +231,8 @@ public class PizzaHutPluginMain extends BasePlugin
 				Element playerElem = doc.createElement("player");
 
 				Element nameElem = doc.createElement("name");
-				nameElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.NAME)));
+				String name = player.get(PlayerAttribute.NAME);
+				nameElem.appendChild(doc.createTextNode(name));
 
 				Element raceElem = doc.createElement("race");
 				raceElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.RACE)));
@@ -216,13 +240,35 @@ public class PizzaHutPluginMain extends BasePlugin
 				Element apmElem = doc.createElement("apm");
 				apmElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.APM)));
 
-				Element workersElem = doc.createElement("workersBuilt");
-				workersElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.WORKERS_BUILT)));
-
 				playerElem.appendChild(nameElem);
 				playerElem.appendChild(raceElem);
 				playerElem.appendChild(apmElem);
-				playerElem.appendChild(workersElem);
+
+				// This next bit of douchery is safeguarding against the asynchronousness of 
+				// profile. Better to spin on containsKey?
+				Iterator<String> keys = m_profiles.keySet().iterator();
+				while (keys.hasNext()) {
+					String key = keys.next();
+					if (key.equals(name))
+					{
+						try 
+						{
+							IProfile profile = m_profiles.get(key);
+							Element leagueElem = doc.createElement("league");
+							String league = profile.getAllRankss()[0][0].getLeague().bnetString;
+							leagueElem.appendChild(doc.createTextNode(league));
+							playerElem.appendChild(leagueElem);
+						}
+						// Catch the Null Pointer, since it's not guaranteed all these chains lead to
+						// valid objects!
+						catch (NullPointerException ex)
+						{
+							System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
+							ex.printStackTrace();
+						}
+
+					}
+				}
 
 				playersElement.appendChild(playerElem);
 			}
@@ -249,17 +295,13 @@ public class PizzaHutPluginMain extends BasePlugin
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File(System.getProperty("user.home"), "PIZZAHUT.txt"));
+			StreamResult result = new StreamResult(new File(System.getProperty("user.home"), "PIZZAHUT.xml"));
 			
 			// Output to console for testing
 			// StreamResult result = new StreamResult(System.out);
 			
 			transformer.transform(source, result);
 			System.out.println("I'M AT THE PIZZA HUT");
-		} 
-		catch (ParserConfigurationException pce)
-		{
-			pce.printStackTrace();
 		} 
 		catch (TransformerException tfe)
 		{
