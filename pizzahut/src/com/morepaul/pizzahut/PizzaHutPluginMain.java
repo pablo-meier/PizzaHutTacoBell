@@ -43,6 +43,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -71,6 +75,12 @@ import org.w3c.dom.Element;
  */
 public class PizzaHutPluginMain extends BasePlugin
 {
+
+	/** The port we listen to for a connection. */
+	private static final int PORT = 8080;
+
+	/** Our writer to write out the XML data. */
+	private OutputStream m_tacoBellOut;
 	
 	/** Reference to our new replay listener.     */
 	private NewReplayListener m_newReplayListener;
@@ -122,6 +132,18 @@ public class PizzaHutPluginMain extends BasePlugin
 		m_profileApi = generalServices.getProfileApi();
 		m_profiles = new HashMap<String, IProfile>();
 
+		Socket tacobell = establishConnection();
+		try
+		{
+			m_tacoBellOut = tacobell.getOutputStream();
+		}
+		catch (IOException e)
+		{
+			System.err.println("Couldn't get the socket's Outputstream.");
+			e.printStackTrace();
+			System.exit(-1);
+		}
+
 		System.out.println("[PIZZAHUT] initing!");
 		try
 		{
@@ -149,21 +171,21 @@ public class PizzaHutPluginMain extends BasePlugin
 				System.out.println("[PIZZAHUT] Got replay!");
 
 				IPlayer[] players = replay.getPlayers();
-				for (int i = 0; i < players.length; ++i)
-				{
-					final IPlayerId id = players[i].getPlayerId();
-					final String name = id.getName();
-					m_profileApi.queryProfile(id,
-											new ProfileListener() {
-												@Override
-												public void profileReady(IProfile profile, boolean isAnotherRetrievingInProgress)
-												{
-													m_profiles.put(name, profile);
-												}
-											},
-											false,
-											false);
-				}
+//				for (int i = 0; i < players.length; ++i)
+//				{
+//					final IPlayerId id = players[i].getPlayerId();
+//					final String name = id.getName();
+//					m_profileApi.queryProfile(id,
+//											new ProfileListener() {
+//												@Override
+//												public void profileReady(IProfile profile, boolean isAnotherRetrievingInProgress)
+//												{
+//													m_profiles.put(name, profile);
+//												}
+//											},
+//											false,
+//											false);
+//				}
 				int numPlayers = players.length;
 
 				int gameLength = replay.getGameLengthSec();
@@ -244,31 +266,31 @@ public class PizzaHutPluginMain extends BasePlugin
 				playerElem.appendChild(raceElem);
 				playerElem.appendChild(apmElem);
 
-				// This next bit of douchery is safeguarding against the asynchronousness of 
-				// profile. Better to spin on containsKey?
-				Iterator<String> keys = m_profiles.keySet().iterator();
-				while (keys.hasNext()) {
-					String key = keys.next();
-					if (key.equals(name))
-					{
-						try 
-						{
-							IProfile profile = m_profiles.get(key);
-							Element leagueElem = doc.createElement("league");
-							String league = profile.getAllRankss()[0][0].getLeague().bnetString;
-							leagueElem.appendChild(doc.createTextNode(league));
-							playerElem.appendChild(leagueElem);
-						}
-						// Catch the Null Pointer, since it's not guaranteed all these chains lead to
-						// valid objects!
-						catch (NullPointerException ex)
-						{
-							System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
-							ex.printStackTrace();
-						}
-
-					}
-				}
+//				// This next bit of douchery is safeguarding against the asynchronousness of 
+//				// profile. Better to spin on containsKey?
+//				Iterator<String> keys = m_profiles.keySet().iterator();
+//				while (keys.hasNext()) {
+//					String key = keys.next();
+//					if (key.equals(name))
+//					{
+//						try 
+//						{
+//							IProfile profile = m_profiles.get(key);
+//							Element leagueElem = doc.createElement("league");
+//							String league = profile.getAllRankss()[0][0].getLeague().bnetString;
+//							leagueElem.appendChild(doc.createTextNode(league));
+//							playerElem.appendChild(leagueElem);
+//						}
+//						// Catch the Null Pointer, since it's not guaranteed all these chains lead to
+//						// valid objects!
+//						catch (NullPointerException ex)
+//						{
+//							System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
+//							ex.printStackTrace();
+//						}
+//
+//					}
+//				}
 
 				playersElement.appendChild(playerElem);
 			}
@@ -295,7 +317,7 @@ public class PizzaHutPluginMain extends BasePlugin
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File(System.getProperty("user.home"), "PIZZAHUT.xml"));
+			StreamResult result = new StreamResult(m_tacoBellOut);
 			
 			// Output to console for testing
 			// StreamResult result = new StreamResult(System.out);
@@ -308,4 +330,39 @@ public class PizzaHutPluginMain extends BasePlugin
 			tfe.printStackTrace();
 		}
 	}
+
+
+	/**
+	 * Actually connect to the instance of TacoBell, on the hard-coded PORT. 
+	 * Also, Java verbosity/compile-time-exception-asshattery for the win.
+	 * @return a socket that speaks to TACOBELL.
+	 */
+	private Socket establishConnection()
+	{
+		ServerSocket server = null;
+		Socket client = null;
+		try
+		{
+			server = new ServerSocket(PORT);
+		}
+		catch (IOException e)
+		{
+			System.err.println("Unable to connect on port " + PORT);
+			System.exit(-1);
+		}
+
+		try
+		{
+			client = server.accept();
+			return client;
+		}
+		catch (IOException e)
+		{
+			System.err.println("Unable to accept incoming socket request.");
+			System.exit(-1);
+		}
+
+		return client;
+	}
+
 }
