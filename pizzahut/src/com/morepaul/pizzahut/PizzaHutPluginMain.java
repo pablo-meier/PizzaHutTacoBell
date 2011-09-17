@@ -1,4 +1,4 @@
-/* * Copyright (c) 2011 Paul Meier
+/** Copyright (c) 2011 Paul Meier
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,9 +44,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -105,12 +102,12 @@ public class PizzaHutPluginMain extends BasePlugin
 		RACE,
 		LEAGUE,
 		APM,
-		AVG_INCOME,
-		WORKERS_BUILT,
-		RESOURCES_GATHERED,
-		RESOURCES_SPENT,
-		UNITS_CREATED,
-		UNITS_LOST
+//		AVG_INCOME,
+//		WORKERS_BUILT,
+//		RESOURCES_GATHERED,
+//		RESOURCES_SPENT,
+//		UNITS_CREATED,
+//		UNITS_LOST
 	}
 
 	/** Attributes for the match itself */
@@ -127,22 +124,13 @@ public class PizzaHutPluginMain extends BasePlugin
 	{
 		// Call the init() implementation of the BasePlugin:
 		super.init( pluginDescriptor, pluginServices, generalServices );
+
+		PizzaHutSocketListener listener = new PizzaHutSocketListener(this, PORT);
+		listener.start();
 		
 		m_replayUtils = generalServices.getReplayUtilsApi();
 		m_profileApi = generalServices.getProfileApi();
 		m_profiles = new HashMap<String, IProfile>();
-
-		Socket tacobell = establishConnection();
-		try
-		{
-			m_tacoBellOut = tacobell.getOutputStream();
-		}
-		catch (IOException e)
-		{
-			System.err.println("Couldn't get the socket's Outputstream.");
-			e.printStackTrace();
-			System.exit(-1);
-		}
 
 		System.out.println("[PIZZAHUT] initing!");
 		try
@@ -222,6 +210,15 @@ public class PizzaHutPluginMain extends BasePlugin
 				System.out.println("[PIZZAHUT] I'M AT THE PIZZA HUT!");
 			}
 		} );
+	}
+
+
+	/**
+	 * Sets the OutputStream we send out New Replay data out of.
+	 */
+	public void setOutputStream(OutputStream out)
+	{
+		m_tacoBellOut = out;
 	}
 	
 
@@ -330,39 +327,4 @@ public class PizzaHutPluginMain extends BasePlugin
 			tfe.printStackTrace();
 		}
 	}
-
-
-	/**
-	 * Actually connect to the instance of TacoBell, on the hard-coded PORT. 
-	 * Also, Java verbosity/compile-time-exception-asshattery for the win.
-	 * @return a socket that speaks to TACOBELL.
-	 */
-	private Socket establishConnection()
-	{
-		ServerSocket server = null;
-		Socket client = null;
-		try
-		{
-			server = new ServerSocket(PORT);
-		}
-		catch (IOException e)
-		{
-			System.err.println("Unable to connect on port " + PORT);
-			System.exit(-1);
-		}
-
-		try
-		{
-			client = server.accept();
-			return client;
-		}
-		catch (IOException e)
-		{
-			System.err.println("Unable to accept incoming socket request.");
-			System.exit(-1);
-		}
-
-		return client;
-	}
-
 }
