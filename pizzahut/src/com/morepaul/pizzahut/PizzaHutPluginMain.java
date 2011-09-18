@@ -27,7 +27,6 @@ import hu.belicza.andras.sc2gearspluginapi.api.listener.*;
 import hu.belicza.andras.sc2gearspluginapi.api.profile.*;
 import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.*;
 import hu.belicza.andras.sc2gearspluginapi.impl.*;
-import hu.belicza.andras.sc2gearspluginapi.impl.*;
 
 import java.io.*;
 import java.net.*;
@@ -52,13 +51,20 @@ import org.w3c.dom.*;
 public class PizzaHutPluginMain extends BasePlugin
 {
 
+	/** Number of milliseconds we wait until sending the data
+	    without a league. */
+	private static final long PROFILE_WAIT_TIMEOUT = 15000;
+
+	/** When we requested the profiles. Used to calculate timeouts. */
+	private long m_profileQueryTime;
+
 	/** The port we listen to for a connection. */
 	private static final int PORT = 8080;
 
 	/** Our writer to write out the XML data. */
 	private Socket m_tacoBell;
 	
-	/** Reference to our new replay listener.     */
+	/** Reference to our new replay listener.  */
 	private NewReplayListener m_newReplayListener;
 	
 	/** Replay Utils to calculate API. */
@@ -90,12 +96,6 @@ public class PizzaHutPluginMain extends BasePlugin
 		RACE,
 		LEAGUE,
 		APM,
-//		AVG_INCOME,
-//		WORKERS_BUILT,
-//		RESOURCES_GATHERED,
-//		RESOURCES_SPENT,
-//		UNITS_CREATED,
-//		UNITS_LOST
 	}
 
 	/** Attributes for the match itself */
@@ -138,11 +138,17 @@ public class PizzaHutPluginMain extends BasePlugin
 		{
 			e.printStackTrace();
 		}
+
+		// the 'l' stands for Y U NO LAMBDAS ?!?!?
+		final PizzaHutPluginMain l_plugin = this;
 	
 		// Register a new replay listener
 		generalServices.getCallbackApi().addNewReplayListener( m_newReplayListener = new NewReplayListener() {
+			
 			@Override
 			public void newReplayDetected( final File replayFile ) {
+
+				// Start with a clean slate.
 				m_profiles.clear();
 
 				// Cached info is enough for us: we acquire replay with ReplayFactory.getReplay()
@@ -154,21 +160,16 @@ public class PizzaHutPluginMain extends BasePlugin
 				System.out.println("[PIZZAHUT] Got replay!");
 
 				IPlayer[] players = replay.getPlayers();
-//				for (int i = 0; i < players.length; ++i)
-//				{
-//					final IPlayerId id = players[i].getPlayerId();
-//					final String name = id.getName();
-//					m_profileApi.queryProfile(id,
-//											new ProfileListener() {
-//												@Override
-//												public void profileReady(IProfile profile, boolean isAnotherRetrievingInProgress)
-//												{
-//													m_profiles.put(name, profile);
-//												}
-//											},
-//											false,
-//											false);
-//				}
+
+				// Search for profiles!
+				for (int i = 0; i < players.length; ++i)
+				{
+					final IPlayerId id = players[i].getPlayerId();
+					final String name = id.getName();
+					m_profileApi.queryProfile(id, new PizzaHutProfileGetter(l_plugin, name), false, false);
+				}
+				m_profileQueryTime = System.currentTimeMillis();
+
 				int numPlayers = players.length;
 
 				int gameLength = replay.getGameLengthSec();
@@ -184,6 +185,7 @@ public class PizzaHutPluginMain extends BasePlugin
 
 					int apm = m_replayUtils.calculatePlayerApm(replay, players[i]);
 					thisSet.put(PlayerAttribute.APM, Integer.toString(apm));
+					thisSet.put(PlayerAttribute.LEAGUE, "unknown");
 
 					playerInfo.add(i, thisSet);
 				}
@@ -204,6 +206,18 @@ public class PizzaHutPluginMain extends BasePlugin
 				System.out.println("[PIZZAHUT] I'M AT THE PIZZA HUT!");
 			}
 		} );
+	}
+
+
+	public void addToProfiles(String name, IProfile profile)
+	{
+		m_profiles.put(name, profile);
+	}
+
+	
+	private boolean isProfileTimeout()
+	{
+		return (System.currentTimeMillis() - m_profileQueryTime) > PROFILE_WAIT_TIMEOUT;
 	}
 
 
@@ -239,7 +253,8 @@ public class PizzaHutPluginMain extends BasePlugin
 	/**
 	 * Print the game data to an XML file for TACOBELL to read/render.
 	 */
-	private void printXmlFile(ArrayList<HashMap<PlayerAttribute, String>> players, HashMap<MatchAttribute,String> match)
+	private void printXmlFile(ArrayList<HashMap<PlayerAttribute, String>> players, 
+								HashMap<MatchAttribute,String> match)
 	{
 	  try {
 			// root element
@@ -269,31 +284,43 @@ public class PizzaHutPluginMain extends BasePlugin
 				playerElem.appendChild(raceElem);
 				playerElem.appendChild(apmElem);
 
-//				// This next bit of douchery is safeguarding against the asynchronousness of 
-//				// profile. Better to spin on containsKey?
-//				Iterator<String> keys = m_profiles.keySet().iterator();
-//				while (keys.hasNext()) {
-//					String key = keys.next();
-//					if (key.equals(name))
-//					{
-//						try 
-//						{
-//							IProfile profile = m_profiles.get(key);
-//							Element leagueElem = doc.createElement("league");
-//							String league = profile.getAllRankss()[0][0].getLeague().bnetString;
-//							leagueElem.appendChild(doc.createTextNode(league));
-//							playerElem.appendChild(leagueElem);
-//						}
-//						// Catch the Null Pointer, since it's not guaranteed all these chains lead to
-//						// valid objects!
-//						catch (NullPointerException ex)
-//						{
-//							System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
-//							ex.printStackTrace();
-//						}
-//
-//					}
-//				}
+				// This next bit of douchery is safeguarding against the asynchronousness of 
+				// profile fetching. Top-level while assures we stop after a timeout period.
+				while (!isProfileTimeout())
+				{
+					// If we don't have the profiles, spin.
+					if (m_profiles.size() == players.size())
+					{
+						Iterator<String> keys = m_profiles.keySet().iterator();
+						while (keys.hasNext()) {
+							String key = keys.next();
+							if (key.equals(name))
+							{
+								try 
+								{
+									IProfile profile = m_profiles.get(key);
+									System.out.println("Inside! profile==null -> " + (profile == null));
+									String league = profile.getBestRanks()[0].getLeague().toString();
+									player.put(PlayerAttribute.LEAGUE, league);
+								}
+								// Catch the Null Pointer, since it's not guaranteed all these chains lead to
+								// valid objects!
+								catch (NullPointerException ex)
+								{
+									System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
+									ex.printStackTrace();
+								}
+		
+							}  // is this key match the player we're writing?
+						} // is iterator empty
+						break;
+
+					} // to spin or not to spin.
+				} //timeout check
+
+				Element leagueElem = doc.createElement("league");
+				leagueElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.LEAGUE)));
+				playerElem.appendChild(leagueElem);
 
 				playersElement.appendChild(playerElem);
 			}
@@ -340,22 +367,23 @@ public class PizzaHutPluginMain extends BasePlugin
 	{
 		try
 		{
-			byte[] bLength = intToByteArray(length);
-			System.out.println("Length = " + length +", bLength = " + bLength);
+//			byte[] bLength = intToByteArray(length);
+//			System.out.println("Length = " + length +", bLength = " + bLength);
 			OutputStream out = m_tacoBell.getOutputStream();
 			System.out.println("Got output stream");
 			InputStream in = m_tacoBell.getInputStream();
 			System.out.println("Got input stream");
-			out.write(bLength);
-			System.out.println("Wrote out data! Reading incoming...");
-			int response = in.read();
+		//	out.write(bLength);
+		//	System.out.println("Wrote out data! Reading incoming...");
+		//	int response = in.read();
 
-			if (response != 0)
-			{
-				StreamResult byteResult = new StreamResult(out);
-				m_transformer.transform(source, byteResult);
+		//	if (response != 0)
+		//	{
 
-			}
+			StreamResult byteResult = new StreamResult(out);
+			m_transformer.transform(source, byteResult);
+
+		//	}
 		}
 		catch (Exception e) 
 		{
@@ -364,15 +392,15 @@ public class PizzaHutPluginMain extends BasePlugin
 	}
 
 
-	/**
-	 *  Y U NO C?!???
-	 */
-	private byte[] intToByteArray(int in)
-	{
-		return new byte[] {
-			(byte) (in >>> 24),
-			(byte) (in >>> 16),
-			(byte) (in >>> 8),
-			(byte) in};
-	}
+//	/**
+//	 *  Y U NO C?!???
+//	 */
+//	private byte[] intToByteArray(int in)
+//	{
+//		return new byte[] {
+//			(byte) (in >>> 24),
+//			(byte) (in >>> 16),
+//			(byte) (in >>> 8),
+//			(byte) in};
+//	}
 }

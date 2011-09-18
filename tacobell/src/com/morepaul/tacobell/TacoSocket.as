@@ -14,19 +14,12 @@ package com.morepaul.tacobell
 
 		private var m_main : TacoBellPluginMain;
 
-		private var m_isReadingXml : Boolean;
-
-
-		private var m_msgLength : uint;
-
 		public function TacoSocket( host : String, port : uint, main : TacoBellPluginMain ):void 
 		{
 			super();
 			configureListeners();
 
 			m_main = main;
-			m_isReadingXml = false;
-			m_msgLength = 0;
 
 			if (host && port)  {
 				super.connect(host, port);
@@ -41,24 +34,6 @@ package com.morepaul.tacobell
 			addEventListener(ProgressEvent.SOCKET_DATA, socketDataHandler);
 		}
 
-		private function readResponse():void {
-			if (m_isReadingXml)
-			{
-				var str : String = readUTFBytes(bytesAvailable);
-				m_main.renderXmlData(new XML(str));
-				m_isReadingXml = false;
-			}
-			else
-			{
-				m_msgLength = this.readInt();
-
-				m_main.debug("Received length! It's " + length.toString());
-				this.writeInt(1);
-				this.flush();
-		
-				m_isReadingXml = true;
-			}
-		}
 
 		private function closeHandler(event:Event):void {
 			m_main.debug("closeHandler: " + event);
@@ -78,7 +53,8 @@ package com.morepaul.tacobell
 
 		private function socketDataHandler(event:ProgressEvent):void {
 			m_main.debug("socketDataHandler: " + event);
-			readResponse();
+			var str : String = readUTFBytes(bytesAvailable);
+			m_main.renderXmlData(new XML(str));
 		}
 	}
 }

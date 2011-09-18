@@ -190,6 +190,8 @@ package com.morepaul.tacobell
 			m_debug = new TextField();
 			m_debug.text = "Debug lolololololol";
 			this.addChild(m_debug);
+//			m_debug.width = 200;
+//			m_debug.height = 400;
 			m_debug.x = (stage.stageWidth / 2 ) - (m_debug.width / 2);
 			m_debug.y = (stage.stageHeight / 2 ) - (m_debug.height / 2);
 		}
