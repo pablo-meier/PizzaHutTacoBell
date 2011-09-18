@@ -1,4 +1,4 @@
-/**
+/*
  *  Copyright (c) 2011 Paul Meier
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +26,10 @@ package com.morepaul.tacobell
 	import flash.display.Graphics;
 	import flash.display.Shape;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.events.SecurityErrorEvent;
+	import flash.events.ProgressEvent;
+	import flash.net.Socket;
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.text.AntiAliasType;
@@ -36,11 +40,26 @@ package com.morepaul.tacobell
 
 	public class TacoBellPluginMain extends Sprite
 	{
+		/** Hard-coded LIKE A BAWS */
+		private var PORT : int = 8080;
+
 		/** All text fields we render get placed here, so they can be replaced easily. */
 		private var m_renderText : Array;
 		 
 		/** The default styling we use for all our text! */
 		private var m_prettyFormat : TextFormat;
+
+		/** Where we debug since we don't have a damn stdout print. */
+		private var m_debug : TextField;
+
+		/** Our communication friend! */
+		private var m_socket : TacoSocket;
+
+		private var m_readingXml : Boolean;
+
+		private var m_msgLength : int = 0;
+
+
 
 		/**
 		 * Initialize the stage.
@@ -51,48 +70,39 @@ package com.morepaul.tacobell
 			stage.stageWidth = 300;
 			stage.stageHeight = 500;
 
-			var background : Shape = new Shape();
-			background.graphics.lineStyle();
-			background.graphics.beginFill(0x4036FF);
-			background.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
-			background.graphics.endFill();
-			this.addChild(background);
-
+			drawBackground();
+			setupDebug();
+			setPrettiness()
 
 			m_renderText = new Array();
 
-			m_prettyFormat = new TextFormat();
-			m_prettyFormat.align = TextFormatAlign.CENTER;
-			m_prettyFormat.bold = true;
-			m_prettyFormat.color = 0x6BF8FF;
-			m_prettyFormat.font = "Arial";
-			m_prettyFormat.size = 16;
-
-			renderFile("file:///Users/pmeier/PIZZAHUT.xml");
+			m_socket = new TacoSocket("localhost", PORT, this);
 		} 
 
+
+
 		/**
-		 * This is the primary functionality of the plugin -- given a filename, 
-		 * read it, and render the text into the movie. We read the file with 
-		 * URLLoader.
+		 * 	While the major use case of our data is coming through the socket, this is 
+		 * used for testing, etc.
 		 */
-		public function renderFile(filename : String):void
+		private function renderFile(filename : String):void
 		{
 			var xmlLoader:URLLoader = new URLLoader();
-			xmlLoader.addEventListener(Event.COMPLETE, onComplete, false, 0, true);
+			xmlLoader.addEventListener(Event.COMPLETE, onFileReadComplete, false, 0, true);
 			xmlLoader.load(new URLRequest(filename));
 		}
 
-		private function onComplete(evt:Event):void
+		private function onFileReadComplete(evt : Event):void
 		{
 			renderXmlData(new XML(evt.target.data));
 		}
 
 
+
 		/**
 		 * Traverses the DOM and renders the relevant data to the stage as it does so.
 		 */
-		private function renderXmlData(xmlData : XML):void
+		public function renderXmlData(xmlData : XML):void
 		{
 			// Render the player data.
 			var players : XMLList = xmlData.players.player;
@@ -154,6 +164,45 @@ package com.morepaul.tacobell
 			mapName.y = bottomLoc + 10;
 			matchTime.y = bottomLoc + 30;
 			loserGG.y = bottomLoc + 50;
+		}
+
+
+        public function debug(str : String):void
+        {
+			m_debug.text = str;
+        }
+
+
+		public function drawBackground():void
+		{
+			var background : Shape = new Shape();
+			background.graphics.lineStyle();
+			background.graphics.beginFill(0x4036FF);
+			background.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
+			background.graphics.endFill();
+			this.addChild(background);
+		}
+
+
+
+		public function setupDebug():void
+		{
+			m_debug = new TextField();
+			m_debug.text = "Debug lolololololol";
+			this.addChild(m_debug);
+			m_debug.x = (stage.stageWidth / 2 ) - (m_debug.width / 2);
+			m_debug.y = (stage.stageHeight / 2 ) - (m_debug.height / 2);
+		}
+
+
+		public function setPrettiness():void
+		{
+			m_prettyFormat = new TextFormat();
+			m_prettyFormat.align = TextFormatAlign.CENTER;
+			m_prettyFormat.bold = true;
+			m_prettyFormat.color = 0x6BF8FF;
+			m_prettyFormat.font = "Arial";
+			m_prettyFormat.size = 16;
 		}
 
 

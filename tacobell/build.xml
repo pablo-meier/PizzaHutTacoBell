@@ -32,7 +32,7 @@
   <!-- Now, THE MEAT! -->
   <target name="compile" depends="flexinit">
     <mxmlc file="${package-path}/TacoBellPluginMain.as"
-           actionscript-file-encoding="UTF-8">
+           actionscript-file-encoding="UTF-8"> 
       <load-config filename="${config}" />
     </mxmlc>
   </target>

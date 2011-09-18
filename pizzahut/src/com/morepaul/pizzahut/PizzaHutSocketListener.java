@@ -1,4 +1,4 @@
-/** Copyright (c) 2011 Paul Meier
+/* Copyright (c) 2011 Paul Meier
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,17 +29,36 @@ import java.net.Socket;
 public class PizzaHutSocketListener extends Thread implements Runnable
 {
 
-	/** The port we will listen on. */
-	private int m_port;
+	private ServerSocket m_server;
 
 	/** Our reference back to our parent, to set the OutputStream. */
 	private PizzaHutPluginMain m_main;
 
-
+	/** Initializes a new Socket LIstener in the specified port. */
 	public PizzaHutSocketListener(PizzaHutPluginMain main, int port)
 	{
 		m_main = main;
-		m_port = port;
+		m_main.setSocketListener(this);
+
+		ServerSocket server = null;
+		try
+		{
+			m_server = new ServerSocket(port);
+			m_server.setReuseAddress(true);
+		}
+		catch (IOException e)
+		{
+			fail(e, "Unable to connect on port " + port);
+		}
+	}
+
+
+	public void close()
+	{
+		try
+		{
+			m_server.close();
+		} catch (IOException e) { }
 	}
 
 
@@ -50,41 +69,24 @@ public class PizzaHutSocketListener extends Thread implements Runnable
 	 */
 	public void run()
 	{
-		ServerSocket server = null;
 		Socket client = null;
-		try
+		while (true) 
 		{
-			server = new ServerSocket(m_port);
-		}
-		catch (IOException e)
-		{
-			fail(e, "Unable to connect on port " + m_port);
-		}
+			try
+			{
+				client = m_server.accept();
+			}
+			catch (IOException e)
+			{
+				fail(e, "Unable to accept incoming socket request.");
+			}
 
-		try
-		{
-			client = server.accept();
+			if (client != null)
+			{
+				m_main.setSocket(client);
+			}	
+			System.out.println("[PIZZAHUT] Accepted a new connection!");
 		}
-		catch (IOException e)
-		{
-			fail(e, "Unable to accept incoming socket request.");
-		}
-
-		OutputStream out = null;
-		try
-		{
-			out = client.getOutputStream();
-		}
-		catch (IOException e)
-		{
-			fail(e, "Couldn't get the socket's Outputstream.");
-		}
-
-
-		if (out != null)
-		{
-			m_main.setOutputStream(out);
-		}	
 	}
 
 

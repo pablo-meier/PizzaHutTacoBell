@@ -1,4 +1,4 @@
-/** Copyright (c) 2011 Paul Meier
+/* Copyright (c) 2011 Paul Meier
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,44 +21,23 @@
 
 package com.morepaul.pizzahut;
 
-import hu.belicza.andras.sc2gearspluginapi.Configurable;
-import hu.belicza.andras.sc2gearspluginapi.GeneralServices;
-import hu.belicza.andras.sc2gearspluginapi.PluginDescriptor;
-import hu.belicza.andras.sc2gearspluginapi.PluginServices;
-import hu.belicza.andras.sc2gearspluginapi.SettingsControl;
-import hu.belicza.andras.sc2gearspluginapi.api.LanguageApi;
-import hu.belicza.andras.sc2gearspluginapi.api.ProfileApi;
-import hu.belicza.andras.sc2gearspluginapi.api.ReplayUtilsApi;
-import hu.belicza.andras.sc2gearspluginapi.api.SettingsApi;
-import hu.belicza.andras.sc2gearspluginapi.api.listener.ProfileListener;
-import hu.belicza.andras.sc2gearspluginapi.api.listener.NewReplayListener;
-import hu.belicza.andras.sc2gearspluginapi.api.profile.IProfile;
-import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.IPlayer;
-import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.IPlayerId;
-import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.IReplay;
-import hu.belicza.andras.sc2gearspluginapi.impl.BasePlugin;
-import hu.belicza.andras.sc2gearspluginapi.impl.BaseSettingsControl;
+import hu.belicza.andras.sc2gearspluginapi.*;
+import hu.belicza.andras.sc2gearspluginapi.api.*;
+import hu.belicza.andras.sc2gearspluginapi.api.listener.*;
+import hu.belicza.andras.sc2gearspluginapi.api.profile.*;
+import hu.belicza.andras.sc2gearspluginapi.api.sc2replay.*;
+import hu.belicza.andras.sc2gearspluginapi.impl.*;
+import hu.belicza.andras.sc2gearspluginapi.impl.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Iterator;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
 
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.*;
 
 /**
  * A plugin that outputs data of the match most recently played into a 
@@ -77,7 +56,7 @@ public class PizzaHutPluginMain extends BasePlugin
 	private static final int PORT = 8080;
 
 	/** Our writer to write out the XML data. */
-	private OutputStream m_tacoBellOut;
+	private Socket m_tacoBell;
 	
 	/** Reference to our new replay listener.     */
 	private NewReplayListener m_newReplayListener;
@@ -94,6 +73,15 @@ public class PizzaHutPluginMain extends BasePlugin
 
 	/** Storage for fetched profiles. */
 	private HashMap<String, IProfile> m_profiles;
+
+	/** Convert DOM to XML */
+	private Transformer m_transformer;
+
+	/** Write the length of the transmission with this writer. */
+	private PrintWriter m_socketWriter;
+
+	/** Manages our network connections. */
+	private PizzaHutSocketListener m_listener;
 
 	/** Attributes we display for each player. */
 	private enum PlayerAttribute 
@@ -138,11 +126,18 @@ public class PizzaHutPluginMain extends BasePlugin
 			// Initialize your XML components.
 			m_docFactory = DocumentBuilderFactory.newInstance();
 			m_docBuilder = m_docFactory.newDocumentBuilder();
+
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			m_transformer = transformerFactory.newTransformer();
 		}
 		catch (ParserConfigurationException pce)
 		{
 			pce.printStackTrace();
 		} 
+		catch (TransformerConfigurationException e)
+		{
+			e.printStackTrace();
+		}
 	
 		// Register a new replay listener
 		generalServices.getCallbackApi().addNewReplayListener( m_newReplayListener = new NewReplayListener() {
@@ -179,7 +174,6 @@ public class PizzaHutPluginMain extends BasePlugin
 				int gameLength = replay.getGameLengthSec();
 				double minutes = gameLength / 60;
 	
-				System.out.println("numPlayers is "+numPlayers);
 				ArrayList<HashMap<PlayerAttribute, String>> playerInfo = new ArrayList<HashMap<PlayerAttribute,String>>(numPlayers);
 
 				for (int i = 0; i < numPlayers; ++i)
@@ -216,9 +210,14 @@ public class PizzaHutPluginMain extends BasePlugin
 	/**
 	 * Sets the OutputStream we send out New Replay data out of.
 	 */
-	public void setOutputStream(OutputStream out)
+	public void setSocket(Socket out)
 	{
-		m_tacoBellOut = out;
+		m_tacoBell = out;
+	}
+
+	public void setSocketListener(PizzaHutSocketListener listener)
+	{
+		m_listener = listener;
 	}
 	
 
@@ -227,6 +226,13 @@ public class PizzaHutPluginMain extends BasePlugin
 	{
 		// Remove our new replay listener
 		generalServices.getCallbackApi().removeNewReplayListener( m_newReplayListener );
+		try
+		{
+			m_tacoBell.close();
+		} catch (IOException e) { }
+		m_listener.close();
+		m_listener.stop();
+		System.out.println("[PIZZAHUT] Destroyed!");
 	}
 
 
@@ -311,20 +317,62 @@ public class PizzaHutPluginMain extends BasePlugin
 			rootElement.appendChild(loserElem);
 			
 			// write the content into xml file
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(m_tacoBellOut);
-			
-			// Output to console for testing
-			// StreamResult result = new StreamResult(System.out);
-			
-			transformer.transform(source, result);
+			StringWriter writer = new StringWriter();
+			StreamResult stringResult = new StreamResult(writer);
+			m_transformer.transform(source, stringResult);
+
+			communicateResults(stringResult.toString().length(), source);
+
 			System.out.println("I'M AT THE PIZZA HUT");
 		} 
 		catch (TransformerException tfe)
 		{
 			tfe.printStackTrace();
 		}
+	}
+
+	/**
+	 * Informs the client (TACOBELL) how much data to read in the subsequent communication, in
+	 * bytes.
+	 */
+	private void communicateResults(int length, DOMSource source)
+	{
+		try
+		{
+			byte[] bLength = intToByteArray(length);
+			System.out.println("Length = " + length +", bLength = " + bLength);
+			OutputStream out = m_tacoBell.getOutputStream();
+			System.out.println("Got output stream");
+			InputStream in = m_tacoBell.getInputStream();
+			System.out.println("Got input stream");
+			out.write(bLength);
+			System.out.println("Wrote out data! Reading incoming...");
+			int response = in.read();
+
+			if (response != 0)
+			{
+				StreamResult byteResult = new StreamResult(out);
+				m_transformer.transform(source, byteResult);
+
+			}
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+	}
+
+
+	/**
+	 *  Y U NO C?!???
+	 */
+	private byte[] intToByteArray(int in)
+	{
+		return new byte[] {
+			(byte) (in >>> 24),
+			(byte) (in >>> 16),
+			(byte) (in >>> 8),
+			(byte) in};
 	}
 }
