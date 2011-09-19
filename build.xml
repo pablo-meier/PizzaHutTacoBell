@@ -4,6 +4,7 @@
 <project name="CombinationPizzaHutAndTacoBell" default="all" basedir=".">
 
   <property name="jarname" value="PIZZAHUT.jar" />
+  <property name="plugin_xml" value="Sc2Gears-plugin.xml" />
   <property name="swfname" value="TACOBELL.swf" />
 
   <property name="build" value="COMBINATION_PIZZAHUT_AND_TACOBELL" />
@@ -12,6 +13,7 @@
     <ant dir="pizzahut" />
     <ant dir="tacobell" />
     <move file="pizzahut/${jarname}" todir="${build}" />
+    <move file="pizzahut/${plugin_xml}" todir="${build}" />
     <move file="tacobell/${swfname}" todir="${build}" />
   </target>
 
