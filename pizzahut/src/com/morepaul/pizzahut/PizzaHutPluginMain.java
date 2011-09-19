@@ -96,6 +96,7 @@ public class PizzaHutPluginMain extends BasePlugin
 		RACE,
 		LEAGUE,
 		APM,
+		RANK
 	}
 
 	/** Attributes for the match itself */
@@ -185,7 +186,8 @@ public class PizzaHutPluginMain extends BasePlugin
 
 					int apm = m_replayUtils.calculatePlayerApm(replay, players[i]);
 					thisSet.put(PlayerAttribute.APM, Integer.toString(apm));
-					thisSet.put(PlayerAttribute.LEAGUE, "unknown");
+					thisSet.put(PlayerAttribute.LEAGUE, "UNKNOWN");
+					thisSet.put(PlayerAttribute.RANK, "UNKNOWN");
 
 					playerInfo.add(i, thisSet);
 				}
@@ -193,8 +195,11 @@ public class PizzaHutPluginMain extends BasePlugin
 				HashMap<MatchAttribute,String> matchInfo = new HashMap<MatchAttribute,String>();
 
 				int wholeMinutes = (int) Math.floor(minutes);
-				int seconds = (int) gameLength - (wholeMinutes * 60);
-				matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + Integer.toString(seconds));
+				String seconds = Integer.toString((int) gameLength - (wholeMinutes * 60));
+				if (seconds.length() == 1)
+					seconds = "0" + seconds;
+
+				matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + seconds;
 
 				matchInfo.put(MatchAttribute.MAP, replay.getMapName());
 
@@ -302,6 +307,8 @@ public class PizzaHutPluginMain extends BasePlugin
 									System.out.println("Inside! profile==null -> " + (profile == null));
 									String league = profile.getBestRanks()[0].getLeague().toString();
 									player.put(PlayerAttribute.LEAGUE, league);
+									int rank = profile.getBestRanks()[0].getDivisionRank();
+									player.put(PlayerAttribute.RANK, Integer.toString(rank));
 								}
 								// Catch the Null Pointer, since it's not guaranteed all these chains lead to
 								// valid objects!
@@ -321,6 +328,10 @@ public class PizzaHutPluginMain extends BasePlugin
 				Element leagueElem = doc.createElement("league");
 				leagueElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.LEAGUE)));
 				playerElem.appendChild(leagueElem);
+
+				Element rankElem = doc.createElement("rank");
+				rankElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.RANK)));
+				playerElem.appendChild(rankElem);
 
 				playersElement.appendChild(playerElem);
 			}
@@ -367,40 +378,17 @@ public class PizzaHutPluginMain extends BasePlugin
 	{
 		try
 		{
-//			byte[] bLength = intToByteArray(length);
-//			System.out.println("Length = " + length +", bLength = " + bLength);
 			OutputStream out = m_tacoBell.getOutputStream();
 			System.out.println("Got output stream");
 			InputStream in = m_tacoBell.getInputStream();
 			System.out.println("Got input stream");
-		//	out.write(bLength);
-		//	System.out.println("Wrote out data! Reading incoming...");
-		//	int response = in.read();
-
-		//	if (response != 0)
-		//	{
 
 			StreamResult byteResult = new StreamResult(out);
 			m_transformer.transform(source, byteResult);
-
-		//	}
 		}
 		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
 	}
-
-
-//	/**
-//	 *  Y U NO C?!???
-//	 */
-//	private byte[] intToByteArray(int in)
-//	{
-//		return new byte[] {
-//			(byte) (in >>> 24),
-//			(byte) (in >>> 16),
-//			(byte) (in >>> 8),
-//			(byte) in};
-//	}
 }

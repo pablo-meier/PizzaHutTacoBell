@@ -1,14 +1,15 @@
 package com.morepaul.tacobell
 {
 
-	import flash.errors.*;
-	import flash.events.*;
+	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.events.ProgressEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.net.Socket;
 
 	/**
-	 * The example on the Socket docs worked, but mine doesn't! I haven't the foggiest
-	 * clue why. In response, I just start trial-and-erroring what the examples are doing.
-	 * In this case, I subclass socket rather than use it as a member.
+	 * The most deliciuos socket -- reads data that comes from PIZZAHUT and returns
+	 * the XML to someone else to render, make sense of.
 	 */
 	public class TacoSocket extends Socket {
 

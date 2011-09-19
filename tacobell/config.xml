@@ -78,6 +78,11 @@
 		<rsl-url>textLayout_2.0.0.139.swz</rsl-url>
 		<policy-file-url></policy-file-url>
 	</runtime-shared-library-path>
+
+	<runtime-shared-library-path>
+		<path-element>libs/MonsterDebugger.swc</path-element>
+	</runtime-shared-library-path>
+
       
     <runtime-shared-library-path>
 		<path-element>libs/osmf.swc</path-element>
