@@ -74,6 +74,12 @@ package com.morepaul.tacobell
 //			renderFile("/Users/pmeier/tacobell_test1.xml");
 		}
 
+		public function onLoaded():void
+		{
+			MonsterDebugger.trace(this, "Rendering finished!");
+			renderFile("/Users/pmeier/tacobell_test1.xml");
+		}
+
 
 		/**
 		 * Traverses the DOM and renders the relevant data to the stage as it does so.

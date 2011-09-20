@@ -22,11 +22,13 @@
 
 package com.morepaul.tacobell
 {
+	import flash.display.Loader;
 	import flash.events.Event;
 	import flash.events.SecurityErrorEvent;
 	import flash.events.IOErrorEvent;
-	import flash.net.URLLoader;
 	import flash.net.URLRequest;
+
+	import com.demonsters.debugger.MonsterDebugger;
 
 	/**
 	 * A few abstractions that serve media do a similar "load on creation, send
@@ -40,21 +42,29 @@ package com.morepaul.tacobell
 		private var m_numToLoad : uint;
 		private var m_loaded : Boolean;
 
-		public function TacoMediaLoader(howMany : uint)
+		private var m_main : TacoMediaManager;
+
+		private var m_name : String;
+
+		public function TacoMediaLoader(howMany : uint, main : TacoMediaManager, name : String)
 		{
 			super();
 
 			m_bitmapsLoaded = 0;
 			m_numToLoad = howMany;
+			m_main = main;
+			m_name = name;
 		}
 
-		public function loaded():Boolean  { return m_loaded;   }
+		public function loaded():Boolean  { return m_loaded; }
+		public function get name():String { return m_name; }
 
 
 		protected function makeLoader(callback : Function, path : String):void
 		{
-			var imgLoader:URLLoader = new URLLoader();
-			var betterCallback : Function = function(e:Event):void { incr(); callback.call(e); check(); };
+			MonsterDebugger.trace(this, "[MAKELOADER] path is " + path + ", name is " + m_name);
+			var imgLoader:Loader = new Loader();
+			var betterCallback : Function = function(evt:Event):void { incr(); callback(evt); check(); };
 
 			imgLoader.addEventListener(Event.COMPLETE, betterCallback, false, 0, true);
 			imgLoader.addEventListener(IOErrorEvent.IO_ERROR, handleIoError);
@@ -62,7 +72,6 @@ package com.morepaul.tacobell
 
 			imgLoader.load(new URLRequest(path));
 		}
-
 
 		private function incr():void
 		{
@@ -74,18 +83,18 @@ package com.morepaul.tacobell
 			if (m_bitmapsLoaded == m_numToLoad) 
 			{
 				m_loaded = true;
+				m_main.newLoaded();
 			}
 		}
 
 		private function handleIoError(evt : IOErrorEvent):void
 		{
-
+			MonsterDebugger.trace(this, "SHIT WENT DOWN ON IO = " + m_name);
 		}
 
 		private function handleSecurityError(evt : SecurityErrorEvent):void
 		{
-
+			MonsterDebugger.trace(this, "SHIT WENT DOWN ON SECURITY" + m_name);
 		}
-
 	}
 }

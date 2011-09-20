@@ -1,16 +1,16 @@
 /*
  *  Copyright (c) 2011 Paul Meier
- *  
+ *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
- *  
+ *
  *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- *  
+ *
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,6 +25,8 @@ package com.morepaul.tacobell
 
 	import flash.display.Bitmap;
 
+	import com.demonsters.debugger.MonsterDebugger;
+
 	/**
 	 * Our renderer was doing a lot of grunt work that was bloating the
 	 * class when it came to loading the various media this uses (league
@@ -36,9 +38,6 @@ package com.morepaul.tacobell
 
 		/** The renderer we communicate with. */
 		private var m_renderer : TacoRenderer;
-
-		/** Contains our race graphics. */
-		private var m_raceGraphics : Array;
 
 		/** Contains our league graphics. */
 		private var m_bronze      : TacoLeague;
@@ -59,21 +58,24 @@ package com.morepaul.tacobell
 		public function TacoMediaManager(renderer : TacoRenderer):void
 		{
 			super();
+			MonsterDebugger.trace(this, "Entered media manager!");
 
 			m_renderer = renderer;
 
-			m_bronze      = new TacoLeague("bronze");  
-			m_silver      = new TacoLeague("silver");
-			m_gold        = new TacoLeague("gold");
-			m_plat        = new TacoLeague("platinum");
-			m_diamond     = new TacoLeague("diamond");
-			m_master      = new TacoLeague("master");
-			m_grandmaster = new TacoLeague("grandmaster");
+			m_bronze      = new TacoLeague("bronze", this);
+			m_silver      = new TacoLeague("silver", this);
+			m_gold        = new TacoLeague("gold", this);
+			m_plat        = new TacoLeague("platinum", this);
+			m_diamond     = new TacoLeague("diamond", this);
+			m_master      = new TacoLeague("master", this);
+			m_grandmaster = new TacoLeague("grandmaster", this);
+			MonsterDebugger.trace(this, "Loading leagues!");
 
-			m_terran  = new TacoRace("terran"); 
-			m_zerg    = new TacoRace("zerg"); 
-			m_protoss = new TacoRace("protoss"); 
-			m_random  = new TacoRace("random"); 
+			m_terran  = new TacoRace("terran", this);
+			m_zerg    = new TacoRace("zerg", this);
+			m_protoss = new TacoRace("protoss", this);
+			m_random  = new TacoRace("random", this);
+			MonsterDebugger.trace(this, "Loading races!");
 
 			m_assets = new Array(m_bronze, m_silver, m_gold, m_plat, m_diamond, m_master, m_grandmaster,
 								 m_terran, m_zerg, m_protoss, m_random);
@@ -92,11 +94,22 @@ package com.morepaul.tacobell
 		public function get master():TacoLeague      { return m_master      }
 		public function get grandmaster():TacoLeague { return m_grandmaster }
 
-		public function loaded():Boolean 
-		{ 
-			var test : Function = function (t:TacoMediaLoader):Boolean { return t.loaded(); };
+
+		public function newLoaded():void
+		{
+			MonsterDebugger.trace(this, "");
+
+			if (this.loaded())
+			{
+				m_renderer.onLoaded();
+			}
+		}
+
+		public function loaded():Boolean
+		{
+			var test : Function = function (t:TacoMediaLoader,i:int,a:Array):Boolean { MonsterDebugger.trace(this, "Loaded " + t.name); return t.loaded(); };
 			return m_assets.every(test);
-		} 
+		}
 
 		public function race(str:String):Bitmap
 		{

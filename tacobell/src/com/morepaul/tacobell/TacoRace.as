@@ -29,25 +29,22 @@ package com.morepaul.tacobell
 	{
 		// Races
 		private var m_icon : Bitmap;
-		private var m_name : String;
 
-		public function TacoRace(name : String):void
+		public function TacoRace(name : String, main : TacoMediaManager):void
 		{
-			super(1);
-			m_name = name;
+			super(1, main, name);
 			loadBitmaps();
 		}
 
 		// PUBLIC INTERFACE
 		public function get icon() : Bitmap { return m_icon;  }
-		public function get name() : String { return m_name;  }
 
 		// HELPERS 
 		private function loadBitmaps():void
 		{
-			makeLoader(handleIcon,  ASSET_PATH + "races/" + m_name + ".png");
+			makeLoader(handleIcon,  ASSET_PATH + "races/" + this.name + ".png");
 		}
 
-		private function handleIcon (evt:Event):void { m_icon= Bitmap(evt.target.data); }
+		private function handleIcon (evt:Event):void { m_icon= Bitmap(evt.target.content); }
 	}
 }

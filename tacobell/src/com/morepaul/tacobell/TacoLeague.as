@@ -33,12 +33,10 @@ package com.morepaul.tacobell
 		private var m_top50    : Bitmap;
 		private var m_top25    : Bitmap;
 		private var m_top8     : Bitmap;
-		private var m_name : String;
 
-		public function TacoLeague(name : String):void
+		public function TacoLeague(name : String, main : TacoMediaManager):void
 		{
-			super(4);
-			m_name = name;
+			super(4, main, name);
 			loadBitmaps();
 		}
 
@@ -48,21 +46,19 @@ package com.morepaul.tacobell
 		public function get top25():Bitmap    { return m_top25;    }
 		public function get top8():Bitmap     { return m_top8;     }
 
-		public function get name():String     { return m_name;     }
-
 
 		///// HELPERS
 		private function loadBitmaps():void
 		{
-			makeLoader(handleStandard, ASSET_PATH + "leagues/" + m_name + "/standard.png");
-			makeLoader(handleTop50,    ASSET_PATH + "leagues/" + m_name + "/top50.png");
-			makeLoader(handleTop25,    ASSET_PATH + "leagues/" + m_name + "/top25.png");
-			makeLoader(handleTop8,     ASSET_PATH + "leagues/" + m_name + "/top8.png");
+			makeLoader(handleStandard, ASSET_PATH + "leagues/" + this.name + "/standard.png");
+			makeLoader(handleTop50,    ASSET_PATH + "leagues/" + this.name + "/top50.png");
+			makeLoader(handleTop25,    ASSET_PATH + "leagues/" + this.name + "/top25.png");
+			makeLoader(handleTop8,     ASSET_PATH + "leagues/" + this.name + "/top8.png");
 		}
 
-		private function handleStandard(evt:Event):void { m_standard = Bitmap(evt.target.data); }
-		private function handleTop50   (evt:Event):void { m_top50    = Bitmap(evt.target.data); }
-		private function handleTop25   (evt:Event):void { m_top25    = Bitmap(evt.target.data); }
-		private function handleTop8    (evt:Event):void { m_top8     = Bitmap(evt.target.data); }
+		private function handleStandard(evt:Event):void { m_standard = Bitmap(evt.target.content); }
+		private function handleTop50   (evt:Event):void { m_top50    = Bitmap(evt.target.content); }
+		private function handleTop25   (evt:Event):void { m_top25    = Bitmap(evt.target.content); }
+		private function handleTop8    (evt:Event):void { m_top8     = Bitmap(evt.target.content); }
 	}
 }
