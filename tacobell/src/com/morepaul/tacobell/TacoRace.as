@@ -23,28 +23,19 @@
 package com.morepaul.tacobell
 {
 	import flash.display.Bitmap;
-	import flash.events.Event;
 
-	public class TacoRace extends TacoMediaLoader
+	public class TacoRace
 	{
 		// Races
 		private var m_icon : Bitmap;
 
-		public function TacoRace(name : String, main : TacoMediaManager):void
+		public function TacoRace(asset : Bitmap)
 		{
-			super(1, main, name);
-			loadBitmaps();
+			super();
+			m_icon = asset;
 		}
 
 		// PUBLIC INTERFACE
 		public function get icon() : Bitmap { return m_icon;  }
-
-		// HELPERS 
-		private function loadBitmaps():void
-		{
-			makeLoader(handleIcon,  ASSET_PATH + "races/" + this.name + ".png");
-		}
-
-		private function handleIcon (evt:Event):void { m_icon= Bitmap(evt.target.content); }
 	}
 }

@@ -23,9 +23,8 @@
 package com.morepaul.tacobell
 {
 	import flash.display.Bitmap;
-	import flash.events.Event;
 
-	public class TacoLeague extends TacoMediaLoader
+	public class TacoLeague
 	{
 
 		// League Icon types.
@@ -34,10 +33,17 @@ package com.morepaul.tacobell
 		private var m_top25    : Bitmap;
 		private var m_top8     : Bitmap;
 
-		public function TacoLeague(name : String, main : TacoMediaManager):void
+		public function TacoLeague(name : String, 
+									standard : Bitmap, 
+									top50    : Bitmap, 
+									top25    : Bitmap, 
+									top8     : Bitmap)
 		{
-			super(4, main, name);
-			loadBitmaps();
+			super();
+			m_standard = standard;
+			m_top50 = top50;
+			m_top25 = top25;
+			m_top8 = top8;
 		}
 
 		// PUBLIC INTERFACE
@@ -45,20 +51,5 @@ package com.morepaul.tacobell
 		public function get top50():Bitmap    { return m_top50;    }
 		public function get top25():Bitmap    { return m_top25;    }
 		public function get top8():Bitmap     { return m_top8;     }
-
-
-		///// HELPERS
-		private function loadBitmaps():void
-		{
-			makeLoader(handleStandard, ASSET_PATH + "leagues/" + this.name + "/standard.png");
-			makeLoader(handleTop50,    ASSET_PATH + "leagues/" + this.name + "/top50.png");
-			makeLoader(handleTop25,    ASSET_PATH + "leagues/" + this.name + "/top25.png");
-			makeLoader(handleTop8,     ASSET_PATH + "leagues/" + this.name + "/top8.png");
-		}
-
-		private function handleStandard(evt:Event):void { m_standard = Bitmap(evt.target.content); }
-		private function handleTop50   (evt:Event):void { m_top50    = Bitmap(evt.target.content); }
-		private function handleTop25   (evt:Event):void { m_top25    = Bitmap(evt.target.content); }
-		private function handleTop8    (evt:Event):void { m_top8     = Bitmap(evt.target.content); }
 	}
 }
