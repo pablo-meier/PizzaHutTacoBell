@@ -20,16 +20,14 @@
  *  THE SOFTWARE.
  */
 
-package com.morepaul.tacobell
+package com.morepaul.tacobell.display
 {
 
 	import flash.display.Bitmap;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.display.Shape;
-	import flash.events.Event;
-	import flash.net.URLLoader;
-	import flash.net.URLRequest;
 	import flash.text.AntiAliasType;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
@@ -37,10 +35,12 @@ package com.morepaul.tacobell
 
 	import com.demonsters.debugger.MonsterDebugger;
 
+	import com.morepaul.tacobell.TacoBellPluginMain;
+
 	/**
 	 * Handles all the display logic.
 	 */
-	public class TacoRenderer extends Sprite
+	public class TacoRenderer extends DisplayObjectContainer
 	{
 		
 		/** Our connection back to main! And the surface we draw on. */
@@ -63,15 +63,10 @@ package com.morepaul.tacobell
 			super();
 			MonsterDebugger.initialize(this);
 
-			stage.stageWidth = 600;
-			stage.stageHeight = 800;
-
 			m_media = new TacoMediaManager(this);
 
 			drawBackground();
 			setPrettiness()
-
-			renderFile("/Users/pmeier/tacobell_test1.xml");
 		}
 
 
@@ -98,9 +93,9 @@ package com.morepaul.tacobell
 //			var matchTime : TextField = createPrettyTextField(xmlData.time.text());
 //			var loserGG   : TextField = createPrettyTextField(xmlData.loser_gg.text());
 //
-//			this.addChild(mapName);
-//			this.addChild(matchTime);
-//			this.addChild(loserGG);
+//			addChild(mapName);
+//			addChild(matchTime);
+//			addChild(loserGG);
 //
 //			mapName.x = halfway / 2;
 //			matchTime.x = halfway / 2;
@@ -160,9 +155,9 @@ package com.morepaul.tacobell
 				nameTF.y    = yValue;
 				leagueImg.y = yValue;
 
-				this.addChild(raceImg);
-				this.addChild(nameTF);
-				this.addChild(leagueImg);
+				addChild(raceImg);
+				addChild(nameTF);
+				addChild(leagueImg);
 
 				println("Added nameTF at (" + nameTF.x + ", " + nameTF.y + ") with text " + nameTF.text);
 
@@ -177,29 +172,11 @@ package com.morepaul.tacobell
 				apmTF.x = xCol2 - (apmTF.width / 2);
 				apmTF.y = yValue;
 
-				this.addChild(apmTF);
+				addChild(apmTF);
 
 				leftBoundary += xIncrementValue;
 				rightBoundary += xIncrementValue;
 			}
-		}
-
-
-		/**
-		 * 	While the major use case of our data is coming through the socket, this is 
-		 * used for testing, etc.
-		 */
-		public function renderFile( filename : String ):void
-		{
-			var xmlLoader:URLLoader = new URLLoader();
-			xmlLoader.addEventListener(Event.COMPLETE, onFileReadComplete, false, 0, true);
-			xmlLoader.load(new URLRequest(filename));
-		}
-
-		
-		private function onFileReadComplete( evt : Event ):void
-		{
-			renderXmlData(new XML(evt.target.data));
 		}
 
 
@@ -221,7 +198,7 @@ package com.morepaul.tacobell
 			background.graphics.beginFill(0x4036FF);
 			background.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
 			background.graphics.endFill();
-			this.addChild(background);
+			addChild(background);
 		}
 
 

@@ -20,60 +20,39 @@
  *  THE SOFTWARE.
  */
 
-package com.morepaul.tacobell
+package com.morepaul.tacobell.file
 {
-	import flash.display.Sprite;
-	import flash.text.TextField;
+	import flash.events.Event;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 
-	import com.morepaul.tacobell.display.*;
-	import com.morepaul.tacobell.net.*;
-	import com.morepaul.tacobell.file.*;
+	import com.morepaul.tacobell.TacoBellPluginMain;
 
-	/**
-	 * The class that holds it all together.  Initializes, communicates between classes.
-	 */
-
-	public class TacoBellPluginMain extends Sprite
+	public class TacoFileLoader
 	{
-		/** Hard-coded LIKE A BAWS */
-		private var PORT : int = 8080;
+		private var m_main : TacoBellPluginMain;
 
-		/** Our communication friend! */
-		private var m_socket : TacoSocket;
-
-		private var m_fileLoader : TacoFileLoader;
-
-		/** Our painter friend! */
-		private var m_renderer: TacoRenderer;
-
-
-		/**
-		 * Initialize the stage.
-		 */
-		public function TacoBellPluginMain():void
+		public function TacoFileLoader( main : TacoBellPluginMain ):void
 		{
 			super();
-			stage.stageWidth = 600;
-			stage.stageHeight = 800;
-
-			m_renderer = new TacoRenderer();
-			this.addChild(m_renderer);
-
-			//m_socket = new TacoSocket(this);
-			//m_socket.connect("localhost", PORT); 
-
-			m_fileLoader = new TacoFileLoader(this);
-			m_fileLoader.loadFile("/Users/pmeier/tacobell_test1.xml");
-		} 
-
+			m_main = main;
+		}
 
 		/**
-		 * Gateway between our data-gathering (sockets,filesystem) and the actual
-		 * rendering.
+		 * 	While the major use case of our data is coming through the socket, this is 
+		 * used for testing, etc.
 		 */
-		public function renderXmlData( data : XML ):void
+		public function loadFile( filename : String ):void
 		{
-			m_renderer.renderXmlData(data);
+			var xmlLoader:URLLoader = new URLLoader();
+			xmlLoader.addEventListener(Event.COMPLETE, onFileReadComplete, false, 0, true);
+			xmlLoader.load(new URLRequest(filename));
+		}
+
+		
+		private function onFileReadComplete( evt : Event ):void
+		{
+			m_main.renderXmlData(new XML(evt.target.data));
 		}
 	}
 }

@@ -20,22 +20,36 @@
  *  THE SOFTWARE.
  */
 
-package com.morepaul.tacobell
+package com.morepaul.tacobell.display
 {
 	import flash.display.Bitmap;
 
-	public class TacoRace
+	public class TacoLeague
 	{
-		// Races
-		private var m_icon : Bitmap;
 
-		public function TacoRace(asset : Bitmap)
+		// League Icon types.
+		private var m_standard : Bitmap;
+		private var m_top50    : Bitmap;
+		private var m_top25    : Bitmap;
+		private var m_top8     : Bitmap;
+
+		public function TacoLeague( name : String, 
+									standard : Bitmap, 
+									top50    : Bitmap, 
+									top25    : Bitmap, 
+									top8     : Bitmap )
 		{
 			super();
-			m_icon = asset;
+			m_standard = standard;
+			m_top50 = top50;
+			m_top25 = top25;
+			m_top8 = top8;
 		}
 
 		// PUBLIC INTERFACE
-		public function get icon() : Bitmap { return m_icon;  }
+		public function get standard():Bitmap { return m_standard; }
+		public function get top50():Bitmap    { return m_top50;    }
+		public function get top25():Bitmap    { return m_top25;    }
+		public function get top8():Bitmap     { return m_top8;     }
 	}
 }

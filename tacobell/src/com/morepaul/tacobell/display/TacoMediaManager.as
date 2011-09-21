@@ -20,7 +20,7 @@
  *  THE SOFTWARE.
  */
 
-package com.morepaul.tacobell
+package com.morepaul.tacobell.display
 {
 	import flash.display.Bitmap;
 	import mx.core.BitmapAsset;
@@ -55,15 +55,12 @@ package com.morepaul.tacobell
 
 		private var m_assets : Array;
 
-		public function TacoMediaManager(renderer : TacoRenderer):void
+		public function TacoMediaManager( renderer : TacoRenderer ):void
 		{
 			super();
-			MonsterDebugger.trace(this, "Entered media manager!");
 
 			m_renderer = renderer;
 			linkWithEmbedded();
-
-			MonsterDebugger.trace(this, "Loading races!");
 
 			m_assets = new Array(m_bronze, m_silver, m_gold, m_plat, m_diamond, m_master, m_grandmaster,
 								 m_terran, m_zerg, m_protoss, m_random);
@@ -82,7 +79,7 @@ package com.morepaul.tacobell
 		public function get master():TacoLeague      { return m_master      }
 		public function get grandmaster():TacoLeague { return m_grandmaster }
 
-		public function race(str:String):Bitmap
+		public function race( str:String ):Bitmap
 		{
 			var icon : Bitmap;
 			switch(str)
@@ -95,7 +92,7 @@ package com.morepaul.tacobell
 			return icon;
 		}
 
-		public function league(name:String, rank:String):Bitmap
+		public function league( name:String, rank:String ):Bitmap
 		{
 			var league : TacoLeague;
 			var icon : Bitmap;
@@ -181,79 +178,77 @@ package com.morepaul.tacobell
 		}
 
 		// RACES
-		[Embed(source="../../../../assets/races/terran.png")]
+		[Embed(source="../../../../../assets/races/terran.png")]
 		private var TerranIcon : Class;
-		[Embed(source="../../../../assets/races/zerg.png")]
+		[Embed(source="../../../../../assets/races/zerg.png")]
 		private var ZergIcon : Class;
-		[Embed(source="../../../../assets/races/protoss.png")]
+		[Embed(source="../../../../../assets/races/protoss.png")]
 		private var ProtossIcon : Class;
-		[Embed(source="../../../../assets/races/random.png")]
+		[Embed(source="../../../../../assets/races/random.png")]
 		private var RandomIcon : Class;
 
 		// LEAGUES
-		[Embed(source="../../../../assets/leagues/bronze/standard.png")]
+		[Embed(source="../../../../../assets/leagues/bronze/standard.png")]
 		private var BronzeStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/bronze/top50.png")]
+		[Embed(source="../../../../../assets/leagues/bronze/top50.png")]
 		private var BronzeTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/bronze/top25.png")]
+		[Embed(source="../../../../../assets/leagues/bronze/top25.png")]
 		private var BronzeTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/bronze/top8.png")]
+		[Embed(source="../../../../../assets/leagues/bronze/top8.png")]
 		private var BronzeTopEightIcon : Class;
 
-		[Embed(source="../../../../assets/leagues/silver/standard.png")]
+		[Embed(source="../../../../../assets/leagues/silver/standard.png")]
 		private var SilverStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/silver/top50.png")]
+		[Embed(source="../../../../../assets/leagues/silver/top50.png")]
 		private var SilverTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/silver/top25.png")]
+		[Embed(source="../../../../../assets/leagues/silver/top25.png")]
 		private var SilverTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/silver/top8.png")]
+		[Embed(source="../../../../../assets/leagues/silver/top8.png")]
 		private var SilverTopEightIcon : Class;
 
-		[Embed(source="../../../../assets/leagues/gold/standard.png")]
+		[Embed(source="../../../../../assets/leagues/gold/standard.png")]
 		private var GoldStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/gold/top50.png")]
+		[Embed(source="../../../../../assets/leagues/gold/top50.png")]
 		private var GoldTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/gold/top25.png")]
+		[Embed(source="../../../../../assets/leagues/gold/top25.png")]
 		private var GoldTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/gold/top8.png")]
+		[Embed(source="../../../../../assets/leagues/gold/top8.png")]
 		private var GoldTopEightIcon : Class;
 
-		[Embed(source="../../../../assets/leagues/platinum/standard.png")]
+		[Embed(source="../../../../../assets/leagues/platinum/standard.png")]
 		private var PlatStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/platinum/top50.png")]
+		[Embed(source="../../../../../assets/leagues/platinum/top50.png")]
 		private var PlatTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/platinum/top25.png")]
+		[Embed(source="../../../../../assets/leagues/platinum/top25.png")]
 		private var PlatTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/platinum/top8.png")]
+		[Embed(source="../../../../../assets/leagues/platinum/top8.png")]
 		private var PlatTopEightIcon : Class;
 
-		[Embed(source="../../../../assets/leagues/diamond/standard.png")]
+		[Embed(source="../../../../../assets/leagues/diamond/standard.png")]
 		private var DiamondStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/diamond/top50.png")]
+		[Embed(source="../../../../../assets/leagues/diamond/top50.png")]
 		private var DiamondTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/diamond/top25.png")]
+		[Embed(source="../../../../../assets/leagues/diamond/top25.png")]
 		private var DiamondTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/diamond/top8.png")]
+		[Embed(source="../../../../../assets/leagues/diamond/top8.png")]
 		private var DiamondTopEightIcon : Class;
 
-		[Embed(source="../../../../assets/leagues/master/standard.png")]
+		[Embed(source="../../../../../assets/leagues/master/standard.png")]
 		private var MasterStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/master/top50.png")]
+		[Embed(source="../../../../../assets/leagues/master/top50.png")]
 		private var MasterTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/master/top25.png")]
+		[Embed(source="../../../../../assets/leagues/master/top25.png")]
 		private var MasterTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/master/top8.png")]
+		[Embed(source="../../../../../assets/leagues/master/top8.png")]
 		private var MasterTopEightIcon : Class;
 
-		[Embed(source="../../../../assets/leagues/grandmaster/standard.png")]
+		[Embed(source="../../../../../assets/leagues/grandmaster/standard.png")]
 		private var GrandmasterStandardIcon : Class;
-		[Embed(source="../../../../assets/leagues/grandmaster/top50.png")]
+		[Embed(source="../../../../../assets/leagues/grandmaster/top50.png")]
 		private var GrandmasterTopFiftyIcon : Class;
-		[Embed(source="../../../../assets/leagues/grandmaster/top25.png")]
+		[Embed(source="../../../../../assets/leagues/grandmaster/top25.png")]
 		private var GrandmasterTopTwentyFiveIcon : Class;
-		[Embed(source="../../../../assets/leagues/grandmaster/top8.png")]
+		[Embed(source="../../../../../assets/leagues/grandmaster/top8.png")]
 		private var GrandmasterTopEightIcon : Class;
-
-
 	}
 }
