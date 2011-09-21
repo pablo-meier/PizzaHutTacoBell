@@ -71,12 +71,6 @@ package com.morepaul.tacobell
 			drawBackground();
 			setPrettiness()
 
-//			renderFile("/Users/pmeier/tacobell_test1.xml");
-		}
-
-		public function onLoaded():void
-		{
-			MonsterDebugger.trace(this, "Rendering finished!");
 			renderFile("/Users/pmeier/tacobell_test1.xml");
 		}
 
