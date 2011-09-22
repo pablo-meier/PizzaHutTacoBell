@@ -23,9 +23,9 @@
 package com.morepaul.tacobell.display
 {
 
-	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite
 
-	public class TacoPlayerTable extends DisplayObjectContainer
+	public class TacoPlayerTable extends Sprite
 	{
 		
 		public function TacoPlayerTable():void

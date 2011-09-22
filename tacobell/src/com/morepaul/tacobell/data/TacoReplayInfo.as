@@ -20,24 +20,23 @@
  *  THE SOFTWARE.
  */
 
-package com.morepaul.tacobell.display
+package com.morepaul.tacobell.data
 {
 
-	import flash.display.Sprite;
-
-	import com.morepaul.tacobell.data.TacoReplayInfo;
-	
-	public class TacoMatchEndAnimation extends Sprite
+	public class TacoReplayInfo
 	{
+		private var m_players : Array;
+		private var m_matchData : TacoMatch;
 
-		public function TacoMatchEndAnimation():void
+		public function TacoReplayInfo(players : Array, match : TacoMatch):void
 		{
 			super();
+
+			m_players = players;
+			m_matchData = match;
 		}
 
-		public function play( data : TacoReplayInfo ):void
-		{
-
-		}
+		public function get players(): Array     { return m_players;   }
+		public function get match()  : TacoMatch { return m_matchData; }
 	}
 }

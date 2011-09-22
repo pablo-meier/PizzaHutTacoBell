@@ -23,7 +23,9 @@
 package com.morepaul.tacobell.display
 {
 
-	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
+
+	import com.morepaul.tacobell.data.TacoMatch;
 
 
 	/**
@@ -32,7 +34,7 @@ package com.morepaul.tacobell.display
 	 * case, we're displaying the time of the match, the map that was played, and
 	 * (maybe) whether or not the loser(s) gg-ed.
 	 */
-	public class TacoMatchPlacard extends DisplayObjectContainer
+	public class TacoMatchPlacard extends Sprite
 	{
 
 		public function TacoMatchPlacard():void
@@ -42,7 +44,7 @@ package com.morepaul.tacobell.display
 		 * The primary functionality -- we render the MatchPlacard to render 
 		 * matches with the following name and time.
 		 */
-		public function display( mapName : String, matchTime : String ):void
+		public function display( matchData : TacoMatch ):void
 		{
 
 		}

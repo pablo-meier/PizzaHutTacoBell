@@ -24,7 +24,6 @@ package com.morepaul.tacobell.display
 {
 
 	import flash.display.Bitmap;
-	import flash.display.DisplayObjectContainer;
 	import flash.display.Graphics;
 	import flash.display.Sprite;
 	import flash.display.Shape;
@@ -35,12 +34,13 @@ package com.morepaul.tacobell.display
 
 	import com.demonsters.debugger.MonsterDebugger;
 
+	import com.morepaul.tacobell.data.TacoReplayInfo;
 	import com.morepaul.tacobell.TacoBellPluginMain;
 
 	/**
 	 * Handles all the display logic.
 	 */
-	public class TacoRenderer extends DisplayObjectContainer
+	public class TacoRenderer extends Sprite
 	{
 		
 		/** Our connection back to main! And the surface we draw on. */
@@ -87,12 +87,12 @@ package com.morepaul.tacobell.display
 		}
 
 
-		public function playEndOfMatch():void
+		public function render(data : TacoReplayInfo):void
 		{
-			m_animation.play();
+			m_animation.play(data);
 			m_curtain.lower();
-			m_table.display(new Array());
-			m_placard.display("Shakuras Plateau", "17:01");
+			m_table.display(data.players);
+			m_placard.display(data.match);
 		}
 
 

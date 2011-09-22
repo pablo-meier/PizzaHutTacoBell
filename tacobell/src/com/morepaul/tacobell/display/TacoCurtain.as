@@ -23,7 +23,7 @@
 package com.morepaul.tacobell.display
 {
 
-	import flash.display.DisplayObject;
+	import flash.display.Sprite;
 
 	/**
 	 * Class that separates the various phases of the show -- like a curtain 
@@ -32,7 +32,7 @@ package com.morepaul.tacobell.display
 	 * thinking is that this will be done by simply raising and lowering opacity
 	 * on a shape that covers the animation.
 	 */
-	public class TacoCurtain extends DisplayObject
+	public class TacoCurtain extends Sprite
 	{
 		public function TacoCurtain():void
 		{

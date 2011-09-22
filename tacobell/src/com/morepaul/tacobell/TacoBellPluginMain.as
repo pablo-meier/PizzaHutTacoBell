@@ -25,9 +25,10 @@ package com.morepaul.tacobell
 	import flash.display.Sprite;
 	import flash.text.TextField;
 
-	import com.morepaul.tacobell.display.*;
-	import com.morepaul.tacobell.net.*;
-	import com.morepaul.tacobell.file.*;
+	import com.morepaul.tacobell.display.TacoRenderer;
+	import com.morepaul.tacobell.net.TacoSocket;
+	import com.morepaul.tacobell.data.TacoXmlParser;
+	import com.morepaul.tacobell.file.TacoFileLoader;
 
 	/**
 	 * The class that holds it all together.  Initializes, communicates between classes.
@@ -41,10 +42,14 @@ package com.morepaul.tacobell
 		/** Our communication friend! */
 		private var m_socket : TacoSocket;
 
+		/** Our filesystem friend! */
 		private var m_fileLoader : TacoFileLoader;
 
 		/** Our painter friend! */
 		private var m_renderer: TacoRenderer;
+
+		/** Yo fuck this guy... */
+		private var m_xmlParser : TacoXmlParser;
 
 
 		/**
@@ -57,11 +62,18 @@ package com.morepaul.tacobell
 			stage.stageHeight = 800;
 
 			m_renderer = new TacoRenderer();
+			m_renderer.x = 0;
+			m_renderer.y = 0;
+			m_renderer.width = stage.stageWidth;
+			m_renderer.height = stage.stageHeight;
 			this.addChild(m_renderer);
 
-			//m_socket = new TacoSocket(this);
-			//m_socket.connect("localhost", PORT); 
+			m_xmlParser = new TacoXmlParser();
 
+			m_socket = new TacoSocket(this);
+			m_socket.connect("localhost", PORT); 
+
+			// For testing...
 			m_fileLoader = new TacoFileLoader(this);
 			m_fileLoader.loadFile("/Users/pmeier/tacobell_test1.xml");
 		} 
@@ -73,7 +85,7 @@ package com.morepaul.tacobell
 		 */
 		public function renderXmlData( data : XML ):void
 		{
-			m_renderer.renderXmlData(data);
+			m_renderer.render(m_xmlParser.parse(data));
 		}
 	}
 }

@@ -20,24 +20,26 @@
  *  THE SOFTWARE.
  */
 
-package com.morepaul.tacobell.display
+package com.morepaul.tacobell.data
 {
 
-	import flash.display.Sprite;
-
-	import com.morepaul.tacobell.data.TacoReplayInfo;
-	
-	public class TacoMatchEndAnimation extends Sprite
+	/**
+	 * Data representing the details of a match.
+	 */
+	public class TacoMatch
 	{
+		public function TacoMatch():void { super(); }
 
-		public function TacoMatchEndAnimation():void
-		{
-			super();
-		}
+		private var m_time : String;
+		private var m_map  : String;
+		private var m_loserGG : Boolean;
 
-		public function play( data : TacoReplayInfo ):void
-		{
+		public function get time()    : String  { return m_time;    }
+		public function get map()     : String  { return m_map;     }
+		public function get loserGG() : Boolean { return m_loserGG; }
 
-		}
+		public function set time(time:String)     : void { m_time = time;    }
+		public function set map(map:String)       : void { m_map = map;      }
+		public function set loserGG(gg : Boolean) : void { m_loserGG = gg;   }
 	}
 }
