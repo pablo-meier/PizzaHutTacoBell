@@ -46,6 +46,14 @@ package com.morepaul.tacobell.display
 		/** Our connection back to main! And the surface we draw on. */
 		private var m_main : TacoBellPluginMain;
 
+		
+		/** Our displayable components. */
+		private var m_placard : TacoMatchPlacard;
+		private var m_animation: TacoMatchEndAnimation;
+		private var m_table: TacoPlayerTable;
+		private var m_curtain: TacoCurtain;
+
+
 		/** Loads + stores all our images + video */
 		private var m_media : TacoMediaManager;
 
@@ -64,9 +72,33 @@ package com.morepaul.tacobell.display
 			MonsterDebugger.initialize(this);
 
 			m_media = new TacoMediaManager(this);
+			
+			m_animation = new TacoMatchEndAnimation();
+			m_curtain = new TacoCurtain();
+			m_table = new TacoPlayerTable();
+			m_placard = new TacoMatchPlacard();
 
-			drawBackground();
+			this.addChild(m_animation);
+			this.addChild(m_curtain);
+			this.addChild(m_table);
+			this.addChild(m_placard);
+
 			setPrettiness()
+		}
+
+
+		public function playEndOfMatch():void
+		{
+			m_animation.play();
+			m_curtain.lower();
+			m_table.display(new Array());
+			m_placard.display("Shakuras Plateau", "17:01");
+		}
+
+
+		public function reset():void
+		{
+
 		}
 
 
@@ -217,7 +249,7 @@ package com.morepaul.tacobell.display
 			return tf;
 		}
 
-		private function println(str:String):void
+		private function println( str:String ):void
 		{
 			MonsterDebugger.trace(this, str);
 		}
