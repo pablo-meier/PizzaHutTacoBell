@@ -22,11 +22,16 @@
 
 package com.morepaul.tacobell.display
 {
-
-	import flash.display.Sprite;
+	import flash.display.Bitmap;
+	import flash.display.Graphics;
+	import flash.display.Shape;
+	import flash.display.Sprite
+	import flash.text.AntiAliasType;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
+	import flash.text.TextFormatAlign;
 
 	import com.morepaul.tacobell.data.TacoMatch;
-
 
 	/**
 	 * The MatchPlacard lies at the bottom of the render area, and displays 
@@ -36,9 +41,14 @@ package com.morepaul.tacobell.display
 	 */
 	public class TacoMatchPlacard extends Sprite
 	{
+		private var m_media : TacoMediaManager;
 
-		public function TacoMatchPlacard():void
-		{ super(); }
+		public function TacoMatchPlacard( media : TacoMediaManager ):void
+		{
+			super(); 
+
+			m_media = media;
+		}
 
 		/**
 		 * The primary functionality -- we render the MatchPlacard to render 

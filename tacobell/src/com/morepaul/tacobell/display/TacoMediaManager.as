@@ -92,7 +92,7 @@ package com.morepaul.tacobell.display
 			return icon;
 		}
 
-		public function league( name:String, rank:String ):Bitmap
+		public function league( name:String, rankInt:uint ):Bitmap
 		{
 			var league : TacoLeague;
 			var icon : Bitmap;
@@ -106,8 +106,6 @@ package com.morepaul.tacobell.display
 				case "MASTER"      : league = this.master;       break;
 				case "GRANDMASTER" : league = this.grandmaster;  break;
 			}
-
-			var rankInt : uint = Number(rank);
 
 			if      (rankInt > 50) { icon = league.standard }
 			else if (rankInt > 25) { icon = league.top50    }

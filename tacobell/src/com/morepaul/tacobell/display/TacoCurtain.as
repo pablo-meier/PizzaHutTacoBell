@@ -23,6 +23,7 @@
 package com.morepaul.tacobell.display
 {
 
+	import flash.display.Shape;
 	import flash.display.Sprite;
 
 	/**
@@ -34,25 +35,26 @@ package com.morepaul.tacobell.display
 	 */
 	public class TacoCurtain extends Sprite
 	{
+
+		private var m_background : Shape;
+
 		public function TacoCurtain():void
 		{
 			super();
+
+			var m_background : Shape = new Shape();
+			addChild(m_background);
 		}
 
 		/**
 		 * Lowers the curtain -- covers the animation.	}
 		 */
-		public function lower():void
+		public function display():void
 		{
-
-		}
-
-		/**
-		 * Raise the curtian -- shows the animation.
-		 */
-		public function raise():void
-		{
-
+			m_background.graphics.lineStyle();
+			m_background.graphics.beginFill(0x000000);
+			m_background.graphics.drawRect(0,0, this.width, this.height);
+			m_background.graphics.endFill();
 		}
 	}
 }
