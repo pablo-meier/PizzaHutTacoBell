@@ -34,27 +34,33 @@ package com.morepaul.tacobell.display
 
 	import com.morepaul.tacobell.data.TacoMatch;
 	import com.morepaul.tacobell.data.TacoPlayer;
+	import com.morepaul.tacobell.TacoBellPluginMain;
 
 	public class TacoPlayerTable extends Sprite
 	{
-		private static const Y_INCREMENT : uint = 60;
-		private static const Y_START : uint = 60;
+		private static const Y_INCREMENT : Number = 60;
+		private static const Y_START : Number = 60;
 
 		private var m_media : TacoMediaManager;
 		private var m_prettyFormat : TextFormat;
 		private var m_background : Shape;
 
-		public function TacoPlayerTable( x : uint, y : uint, width : uint, height  : uint ):void
+		private var m_table_debug : TextField;
+
+		private var m_main : TacoBellPluginMain;
+
+		public function TacoPlayerTable(m : TacoBellPluginMain):void
 		{ 
 			super(); 
 			
-			this.x = x;
-			this.y = y;
-			this.height = height;
-			this.width = width;
-
-			var m_background : Shape = new Shape();
+			m_background = new Shape();
 			this.addChild(m_background);
+
+			m_table_debug = new TextField();
+			m_table_debug.text = "TABLE REPORTING";
+			this.addChild(m_table_debug);
+
+			m_main = m;
 
 			m_prettyFormat = new TextFormat();
 			m_prettyFormat.align = TextFormatAlign.CENTER;
@@ -64,6 +70,28 @@ package com.morepaul.tacobell.display
 			m_prettyFormat.size = 16;
 		}
 
+
+		public function positionElements():void
+		{
+			m_background.graphics.lineStyle();
+			m_background.graphics.beginFill(0x4036FF);
+			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
+
+			var width_sandbox : Number = this.width;
+			var height_sandbox : Number = this.height;
+
+			m_background.graphics.drawRect(1,1, width_sandbox, height_sandbox);
+
+			this.width = width_sandbox;
+			this.height = height_sandbox;
+
+			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
+			m_background.graphics.endFill();
+
+			m_table_debug.x = (width / 2) - (m_table_debug.width / 2);
+			m_table_debug.y = 0;
+			addChild(m_table_debug);
+		}
 
 		public function set media( m : TacoMediaManager) : void { m_media = m; }
 
@@ -75,41 +103,48 @@ package com.morepaul.tacobell.display
 		 */
 		public function display( players : Array ):void
 		{
-			drawBackground();
+			positionElements();
+			m_main.debug("Called PositionElements!");
 
-			var numCols : uint = players.length;
+			var numCols : Number = players.length;
+			var colWidth : Number = (this.width / numCols);
 
-			var colWidth : uint = (this.width / numCols);
+			var rightColBoundary : Number = colWidth;
+			var leftColBoundary : Number = 0;
 
-			var rightColBoundary : uint = colWidth;
-			var leftColBoundary : uint = 0;
-
+			m_main.debug("[PlayerTable] numCols = " + numCols + ", colWidth = " + colWidth );
+			m_main.debug("[PlayerTable] rightColBoundary = " + rightColBoundary + ", leftColBoundary = " + leftColBoundary);
+			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 			for (var i:int = 0; i < players.length; ++i)
 			{
-				var yValue : uint = Y_START;
+				var yValue : Number = Y_START;
 
 				var thisPlayer : TacoPlayer = players[i];
 
 				// Define the boundaries of the column...
-				var colIncrement : uint = (rightColBoundary - leftColBoundary) / 4;
-				var xCol1 : uint = leftColBoundary + colIncrement;
-				var xCol2 : uint = leftColBoundary + (2 * colIncrement);
-				var xCol3 : uint = leftColBoundary + (3 * colIncrement);
+				var colIncrement : Number = (rightColBoundary - leftColBoundary) / 4;
+				var xCol1 : Number = leftColBoundary + colIncrement;
+				var xCol2 : Number = leftColBoundary + (2 * colIncrement);
+				var xCol3 : Number = leftColBoundary + (3 * colIncrement);
 
 				var nameStr   : String = thisPlayer.name;
 				var leagueStr : String = thisPlayer.league;
 				var raceStr : String = thisPlayer.race;
-				var rank : uint = thisPlayer.rank;
+				var rank : Number = thisPlayer.rank;
 
 				var raceImg : Bitmap = m_media.race(raceStr);
 				var nameTF : TextField = createPrettyTextField(nameStr);
 				var leagueImg : Bitmap = m_media.league(leagueStr, rank);
 
-				raceImg.width = 50;
-				raceImg.height = 50;
+				addChild(raceImg);
+				addChild(nameTF);
+				addChild(leagueImg);
 
-				leagueImg.width = 50;
-				leagueImg.height = 50;
+				raceImg.width = 20;
+				raceImg.height = 20;
+
+				leagueImg.width = 20;
+				leagueImg.height = 20;
 
 				// place the name row...
 				raceImg.x   = xCol1 - (raceImg.width / 2);
@@ -120,9 +155,7 @@ package com.morepaul.tacobell.display
 				nameTF.y    = yValue;
 				leagueImg.y = yValue;
 
-				addChild(raceImg);
-				addChild(nameTF);
-				addChild(leagueImg);
+
 
 				yValue += Y_INCREMENT;
 
@@ -139,15 +172,7 @@ package com.morepaul.tacobell.display
 				leftColBoundary += colWidth;
 				rightColBoundary += colWidth;
 			}
-		}
-
-
-		private function drawBackground():void
-		{
-//			m_background.graphics.lineStyle();
-//			m_background.graphics.beginFill(0x4036FF);
-//			m_background.graphics.drawRect(0,0, this.width, this.height);
-//			m_background.graphics.endFill();
+			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 		}
 
 

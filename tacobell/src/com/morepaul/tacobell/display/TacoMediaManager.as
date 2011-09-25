@@ -33,10 +33,6 @@ package com.morepaul.tacobell.display
 	 */
 	public class TacoMediaManager
 	{
-
-		/** The renderer we communicate with. */
-		private var m_renderer : TacoRenderer;
-
 		/** Contains our league graphics. */
 		private var m_bronze      : TacoLeague;
 		private var m_silver      : TacoLeague;
@@ -53,11 +49,10 @@ package com.morepaul.tacobell.display
 
 		private var m_assets : Array;
 
-		public function TacoMediaManager( renderer : TacoRenderer ):void
+		public function TacoMediaManager():void
 		{
 			super();
 
-			m_renderer = renderer;
 			linkWithEmbedded();
 
 			m_assets = new Array(m_bronze, m_silver, m_gold, m_plat, m_diamond, m_master, m_grandmaster,
