@@ -38,7 +38,7 @@ package com.morepaul.tacobell.data
 			
 			var playerArray : Array = new Array();
 
-			for (var i : uint = 0; i < players.length(); ++i)
+			for (var i : uint = 0; i < players.children().length(); ++i)
 			{
 				var this_player : XML = players.player[i];
 
