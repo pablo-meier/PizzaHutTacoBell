@@ -25,8 +25,6 @@ package com.morepaul.tacobell.display
 	import flash.display.Bitmap;
 	import mx.core.BitmapAsset;
 
-	import com.demonsters.debugger.MonsterDebugger;
-
 	/**
 	 * Our renderer was doing a lot of grunt work that was bloating the
 	 * class when it came to loading the various media this uses (league

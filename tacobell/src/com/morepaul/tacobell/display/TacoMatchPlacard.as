@@ -43,12 +43,17 @@ package com.morepaul.tacobell.display
 	{
 		private var m_media : TacoMediaManager;
 
-		public function TacoMatchPlacard( media : TacoMediaManager ):void
+		public function TacoMatchPlacard( x : uint, y : int, width : uint, height : uint ):void
 		{
 			super(); 
-
-			m_media = media;
+			
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
 		}
+
+		public function set media( m : TacoMediaManager ) : void { m_media = m; }
 
 		/**
 		 * The primary functionality -- we render the MatchPlacard to render 

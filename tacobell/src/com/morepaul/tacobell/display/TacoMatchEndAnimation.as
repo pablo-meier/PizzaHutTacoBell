@@ -30,9 +30,17 @@ package com.morepaul.tacobell.display
 	public class TacoMatchEndAnimation extends Sprite
 	{
 
-		public function TacoMatchEndAnimation():void
+		public function TacoMatchEndAnimation(xPos : Number,
+												yPos : Number,
+												widthSet : Number,
+												heightSet : Number):void
 		{
 			super();
+
+			this.x = xPos;
+			this.y = yPos;
+			this.width = widthSet;
+			this.height = heightSet;
 		}
 
 		public function play( data : TacoReplayInfo ):void

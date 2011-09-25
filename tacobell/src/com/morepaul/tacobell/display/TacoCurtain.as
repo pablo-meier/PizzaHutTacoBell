@@ -38,12 +38,22 @@ package com.morepaul.tacobell.display
 
 		private var m_background : Shape;
 
-		public function TacoCurtain():void
+		public function TacoCurtain(xPos : Number,
+									yPos : Number,
+									widthSet : Number,
+									heightSet : Number):void
 		{
 			super();
 
-			var m_background : Shape = new Shape();
-			addChild(m_background);
+			this.x = xPos;
+			this.y = yPos;
+			this.width = widthSet;
+			this.height = heightSet;
+			
+			this.graphics.lineStyle();
+			this.graphics.beginFill(0x000000);
+			this.graphics.drawRect(0,0, this.width, this.height);
+			this.graphics.endFill();
 		}
 
 		/**
@@ -51,10 +61,6 @@ package com.morepaul.tacobell.display
 		 */
 		public function display():void
 		{
-			m_background.graphics.lineStyle();
-			m_background.graphics.beginFill(0x000000);
-			m_background.graphics.drawRect(0,0, this.width, this.height);
-			m_background.graphics.endFill();
 		}
 	}
 }

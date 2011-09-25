@@ -22,8 +22,9 @@
 
 package com.morepaul.tacobell
 {
-	import flash.display.Sprite;
-	import flash.text.TextField;
+	import flash.display.*;
+	import flash.events.Event;
+	import flash.text.*;
 
 	import com.morepaul.tacobell.display.TacoRenderer;
 	import com.morepaul.tacobell.net.TacoSocket;
@@ -51,6 +52,7 @@ package com.morepaul.tacobell
 		/** Yo fuck this guy... */
 		private var m_xmlParser : TacoXmlParser;
 
+		private var m_debug : TextField;
 
 		/**
 		 * Initialize the stage.
@@ -58,25 +60,41 @@ package com.morepaul.tacobell
 		public function TacoBellPluginMain():void
 		{
 			super();
-			stage.stageWidth = 600;
-			stage.stageHeight = 800;
 
-			m_renderer = new TacoRenderer();
-			m_renderer.x = 0;
-			m_renderer.y = 0;
-			m_renderer.width = stage.stageWidth;
-			m_renderer.height = stage.stageHeight;
+			stage.scaleMode = StageScaleMode.SHOW_ALL;
+
+			m_debug = new TextField();
+			m_debug.text = "started!";
+			m_debug.x = (stage.stageWidth / 2) - (m_debug.width / 2);
+			m_debug.y = (stage.stageHeight / 2) - (m_debug.height / 2);
+			addChild(m_debug);
+
+			m_renderer = new TacoRenderer(this, 0, 0, stage.stageWidth, stage.stageHeight);
 			this.addChild(m_renderer);
+
+			debug("stage width is " + stage.stageWidth + ", height is " + stage.stageHeight);
 
 			m_xmlParser = new TacoXmlParser();
 
 			m_socket = new TacoSocket(this);
 			m_socket.connect("localhost", PORT); 
+			completeRendererListener();
+		} 
 
+
+		public function debug(msg : String):void
+		{
+			m_debug.appendText('\n' + msg);
+		}
+
+
+		public function completeRendererListener():void
+		{
+			debug("Stats are x = " + m_renderer.x + ", y = " + m_renderer.y + ", w " + m_renderer.width + ", h = " + m_renderer.height);
 			// For testing...
 			m_fileLoader = new TacoFileLoader(this);
 			m_fileLoader.loadFile("/Users/pmeier/tacobell_test1.xml");
-		} 
+		}
 
 
 		/**

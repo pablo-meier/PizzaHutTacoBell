@@ -23,9 +23,10 @@
 package com.morepaul.tacobell.display
 {
 
+	import flash.text.TextField;
 	import flash.display.Sprite;
-
-	import com.demonsters.debugger.MonsterDebugger;
+	import flash.display.Shape;
+	import flash.events.Event;
 
 	import com.morepaul.tacobell.data.TacoReplayInfo;
 	import com.morepaul.tacobell.TacoBellPluginMain;
@@ -35,6 +36,7 @@ package com.morepaul.tacobell.display
 	 */
 	public class TacoRenderer extends Sprite
 	{
+		public static const COMPLETE : String = "rendererComplete";
 		
 		/** Our connection back to main! And the surface we draw on. */
 		private var m_main : TacoBellPluginMain;
@@ -50,42 +52,55 @@ package com.morepaul.tacobell.display
 		/** Loads + stores all our images + video */
 		private var m_media : TacoMediaManager;
 
-		public function TacoRenderer():void
+		public function TacoRenderer(main : TacoBellPluginMain, xPos : Number, 
+									yPos : Number, 
+									widthSet : Number, 
+									heightSet : Number):void
 		{
 			super();
-			MonsterDebugger.initialize(this);
+
+			main.debug("Entered Renderer!");
+
+			this.x = xPos;
+			this.y = yPos;
+			this.width = widthSet;
+			this.height = heightSet;
+			main.debug("Width is " + this.width + ", height is " + this.height);
+			main.debug("WidthSet is " + widthSet + ", height is " + heightSet);
+
+			var m_text : TextField = new TextField();
+			m_text.text = "TacoRenderer here!";
+			m_text.x = (this.width / 2) - (m_text.width / 2);
+			m_text.y = (this.height/ 2) - (m_text.height / 2) + 5;
+			this.addChild(m_text);
 
 			m_media = new TacoMediaManager(this);
-			
-			m_animation = new TacoMatchEndAnimation();
-			m_animation.x = this.x;
-			m_animation.y = this.y;
-			m_animation.width = this.width;
-			m_animation.height = this.height;
+
+			m_animation = new TacoMatchEndAnimation(this.x, this.y, this.width, this.height);
 			this.addChild(m_animation);
 
-			m_curtain = new TacoCurtain();
-			m_curtain.x = this.x;
-			m_curtain.y = this.y;
-			m_curtain.width = this.width;
-			m_curtain.height = this.height;
+			m_curtain = new TacoCurtain(this.x, this.y, this.width, this.height);
 			this.addChild(m_curtain);
 
-			m_table = new TacoPlayerTable(m_media);
-			m_table.x = this.x + 5;
-			m_table.y = this.y + 5;
-			m_table.width = this.width - 10;
-			m_table.height = this.height * (3 / 4);
+			m_table = new TacoPlayerTable(this.x + 5, this.y + 5, this.width - 10, this.height * (3 / 4));
 			this.addChild(m_table);
+			m_table.media = m_media;
 
-			m_placard = new TacoMatchPlacard(m_media);
-			m_placard.x = this.x + 5;
-			m_placard.y = m_table.y + m_table.height + 5;
-			m_placard.width = this.width - 10;
-			m_placard.height = this.height - (this.y - 10);
+			m_placard = new TacoMatchPlacard(this.x + 5, 
+											m_table.y + m_table.height + 5, 
+											this.width - 10,
+											this.height - (this.y - 10));
 			this.addChild(m_placard);
-		}
+			m_placard.media = m_media;
 
+
+			var bg : Shape = new Shape();
+			this.addChild(bg);
+			bg.graphics.lineStyle();
+			bg.graphics.beginFill(0x999999);
+			bg.graphics.drawRect(0,0, this.width, this.height);
+			bg.graphics.endFill();
+		}
 
 		public function render(data : TacoReplayInfo):void
 		{
@@ -99,11 +114,6 @@ package com.morepaul.tacobell.display
 		public function reset():void
 		{
 
-		}
-
-		private function println( str:String ):void
-		{
-			MonsterDebugger.trace(this, str);
 		}
 	}
 }

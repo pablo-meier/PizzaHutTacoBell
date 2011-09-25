@@ -199,7 +199,7 @@ public class PizzaHutPluginMain extends BasePlugin
 				if (seconds.length() == 1)
 					seconds = "0" + seconds;
 
-				matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + seconds;
+				matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + seconds);
 
 				matchInfo.put(MatchAttribute.MAP, replay.getMapName());
 

@@ -44,14 +44,17 @@ package com.morepaul.tacobell.display
 		private var m_prettyFormat : TextFormat;
 		private var m_background : Shape;
 
-		public function TacoPlayerTable( media : TacoMediaManager ):void
+		public function TacoPlayerTable( x : uint, y : uint, width : uint, height  : uint ):void
 		{ 
 			super(); 
+			
+			this.x = x;
+			this.y = y;
+			this.height = height;
+			this.width = width;
 
-			m_media = media;
-	
 			var m_background : Shape = new Shape();
-			addChild(m_background);
+			this.addChild(m_background);
 
 			m_prettyFormat = new TextFormat();
 			m_prettyFormat.align = TextFormatAlign.CENTER;
@@ -60,6 +63,9 @@ package com.morepaul.tacobell.display
 			m_prettyFormat.font = "Arial";
 			m_prettyFormat.size = 16;
 		}
+
+
+		public function set media( m : TacoMediaManager) : void { m_media = m; }
 
 
 		/**
