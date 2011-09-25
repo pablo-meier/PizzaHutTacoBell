@@ -23,7 +23,8 @@
 package com.morepaul.tacobell.display
 {
 	import flash.display.Bitmap;
-	import mx.core.BitmapAsset;
+	import flash.display.BitmapData;
+//	import mx.core.BitmapAsset;
 
 	/**
 	 * Our renderer was doing a lot of grunt work that was bloating the
@@ -59,10 +60,10 @@ package com.morepaul.tacobell.display
 								 m_terran, m_zerg, m_protoss, m_random);
 		}
 
-		public function get terran() :Bitmap { return m_terran.icon  }
-		public function get zerg()   :Bitmap { return m_zerg.icon    }
-		public function get protoss():Bitmap { return m_protoss.icon }
-		public function get random() :Bitmap { return m_random.icon  }
+		public function get terran() : BitmapData { return m_terran.icon  }
+		public function get zerg()   : BitmapData { return m_zerg.icon    }
+		public function get protoss(): BitmapData { return m_protoss.icon }
+		public function get random() : BitmapData { return m_random.icon  }
 
 		public function get bronze():TacoLeague      { return m_bronze      }
 		public function get silver():TacoLeague      { return m_silver      }
@@ -74,7 +75,7 @@ package com.morepaul.tacobell.display
 
 		public function race( str:String ):Bitmap
 		{
-			var icon : Bitmap;
+			var icon : BitmapData;
 			switch(str)
 			{
 				case "Terran" : icon = this.terran;  break;
@@ -82,13 +83,13 @@ package com.morepaul.tacobell.display
 				case "Protoss": icon = this.protoss; break;
 				case "Random" : icon = this.random;  break;
 			}
-			return icon;
+			return new Bitmap(icon);
 		}
 
 		public function league( name:String, rankInt:uint ):Bitmap
 		{
 			var league : TacoLeague;
-			var icon : Bitmap;
+			var icon : BitmapData;
 			switch (name)
 			{
 				case "BRONZE"      : league = this.bronze;       break;
@@ -105,7 +106,7 @@ package com.morepaul.tacobell.display
 			else if (rankInt >  8) { icon = league.top25    }
 			else                   { icon = league.top8     }
 
-			return icon;
+			return new Bitmap(icon);
 		}
 
 
@@ -113,58 +114,58 @@ package com.morepaul.tacobell.display
 		/* Embeds and their plumbing at the bottom, because they're ugly as hell. */
 		private function linkWithEmbedded():void
 		{
-			var terIcon : BitmapAsset = new TerranIcon();
+			var terIcon : BitmapData = new TerranIcon().bitmapData;
 			m_terran  = new TacoRace(terIcon);
 
-			var zerIcon : BitmapAsset = new ZergIcon();
+			var zerIcon : BitmapData = new ZergIcon().bitmapData;
 			m_zerg    = new TacoRace(zerIcon);
 
-			var tossIcon : BitmapAsset = new ProtossIcon();
+			var tossIcon : BitmapData = new ProtossIcon().bitmapData;
 			m_protoss = new TacoRace(tossIcon);
 
-			var randIcon : BitmapAsset = new RandomIcon();
+			var randIcon : BitmapData = new RandomIcon().bitmapData;
 			m_random  = new TacoRace(randIcon);
 
-			var bStd : BitmapAsset = new BronzeStandardIcon();
-			var bt50 : BitmapAsset = new BronzeTopFiftyIcon();
-			var bt25 : BitmapAsset = new BronzeTopTwentyFiveIcon();
-			var bt8  : BitmapAsset = new BronzeTopEightIcon();
+			var bStd : BitmapData = new BronzeStandardIcon().bitmapData;
+			var bt50 : BitmapData = new BronzeTopFiftyIcon().bitmapData;
+			var bt25 : BitmapData = new BronzeTopTwentyFiveIcon().bitmapData;
+			var bt8  : BitmapData = new BronzeTopEightIcon().bitmapData;
 			m_bronze = new TacoLeague("bronze", bStd, bt50, bt25, bt8);
 
-			var sStd : BitmapAsset = new SilverStandardIcon();
-			var st50 : BitmapAsset = new SilverTopFiftyIcon();
-			var st25 : BitmapAsset = new SilverTopTwentyFiveIcon();
-			var st8  : BitmapAsset = new SilverTopEightIcon();
+			var sStd : BitmapData = new SilverStandardIcon().bitmapData;
+			var st50 : BitmapData = new SilverTopFiftyIcon().bitmapData;
+			var st25 : BitmapData = new SilverTopTwentyFiveIcon().bitmapData;
+			var st8  : BitmapData = new SilverTopEightIcon().bitmapData;
 			m_silver = new TacoLeague("silver", sStd, st50, st25, st8);
 
-			var gStd : BitmapAsset = new GoldStandardIcon();
-			var gt50 : BitmapAsset = new GoldTopFiftyIcon();
-			var gt25 : BitmapAsset = new GoldTopTwentyFiveIcon();
-			var gt8  : BitmapAsset = new GoldTopEightIcon();
+			var gStd : BitmapData = new GoldStandardIcon().bitmapData;
+			var gt50 : BitmapData = new GoldTopFiftyIcon().bitmapData;
+			var gt25 : BitmapData = new GoldTopTwentyFiveIcon().bitmapData;
+			var gt8  : BitmapData = new GoldTopEightIcon().bitmapData;
 			m_gold = new TacoLeague("gold", gStd, gt50, gt25, gt8);
 
-			var pStd : BitmapAsset = new PlatStandardIcon();
-			var pt50 : BitmapAsset = new PlatTopFiftyIcon();
-			var pt25 : BitmapAsset = new PlatTopTwentyFiveIcon();
-			var pt8  : BitmapAsset = new PlatTopEightIcon();
+			var pStd : BitmapData = new PlatStandardIcon().bitmapData;
+			var pt50 : BitmapData = new PlatTopFiftyIcon().bitmapData;
+			var pt25 : BitmapData = new PlatTopTwentyFiveIcon().bitmapData;
+			var pt8  : BitmapData = new PlatTopEightIcon().bitmapData;
 			m_plat = new TacoLeague("platinum", pStd, pt50, pt25, pt8);
 
-			var dStd : BitmapAsset = new DiamondStandardIcon();
-			var dt50 : BitmapAsset = new DiamondTopFiftyIcon();
-			var dt25 : BitmapAsset = new DiamondTopTwentyFiveIcon();
-			var dt8  : BitmapAsset = new DiamondTopEightIcon();
+			var dStd : BitmapData = new DiamondStandardIcon().bitmapData;
+			var dt50 : BitmapData = new DiamondTopFiftyIcon().bitmapData;
+			var dt25 : BitmapData = new DiamondTopTwentyFiveIcon().bitmapData;
+			var dt8  : BitmapData = new DiamondTopEightIcon().bitmapData;
 			m_diamond = new TacoLeague("diamond", dStd, dt50, dt25, dt8);
 
-			var mStd : BitmapAsset = new MasterStandardIcon();
-			var mt50 : BitmapAsset = new MasterTopFiftyIcon();
-			var mt25 : BitmapAsset = new MasterTopTwentyFiveIcon();
-			var mt8  : BitmapAsset = new MasterTopEightIcon();
+			var mStd : BitmapData = new MasterStandardIcon().bitmapData;
+			var mt50 : BitmapData = new MasterTopFiftyIcon().bitmapData;
+			var mt25 : BitmapData = new MasterTopTwentyFiveIcon().bitmapData;
+			var mt8  : BitmapData = new MasterTopEightIcon().bitmapData;
 			m_master      = new TacoLeague("master", mStd, mt50, mt25, mt8);
 
-			var gmStd : BitmapAsset = new GrandmasterStandardIcon();
-			var gmt50 : BitmapAsset = new GrandmasterTopFiftyIcon();
-			var gmt25 : BitmapAsset = new GrandmasterTopTwentyFiveIcon();
-			var gmt8  : BitmapAsset = new GrandmasterTopEightIcon();
+			var gmStd : BitmapData = new GrandmasterStandardIcon().bitmapData;
+			var gmt50 : BitmapData = new GrandmasterTopFiftyIcon().bitmapData;
+			var gmt25 : BitmapData = new GrandmasterTopTwentyFiveIcon().bitmapData;
+			var gmt8  : BitmapData = new GrandmasterTopEightIcon().bitmapData;
 			m_grandmaster = new TacoLeague("grandmaster", gmStd, gmt50, gmt25, gmt8);
 		}
 

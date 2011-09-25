@@ -22,22 +22,22 @@
 
 package com.morepaul.tacobell.display
 {
-	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 
 	public class TacoLeague
 	{
 
 		// League Icon types.
-		private var m_standard : Bitmap;
-		private var m_top50    : Bitmap;
-		private var m_top25    : Bitmap;
-		private var m_top8     : Bitmap;
+		private var m_standard : BitmapData;
+		private var m_top50    : BitmapData;
+		private var m_top25    : BitmapData;
+		private var m_top8     : BitmapData;
 
 		public function TacoLeague( name : String, 
-									standard : Bitmap, 
-									top50    : Bitmap, 
-									top25    : Bitmap, 
-									top8     : Bitmap )
+									standard : BitmapData, 
+									top50    : BitmapData, 
+									top25    : BitmapData, 
+									top8     : BitmapData )
 		{
 			super();
 			m_standard = standard;
@@ -47,9 +47,9 @@ package com.morepaul.tacobell.display
 		}
 
 		// PUBLIC INTERFACE
-		public function get standard():Bitmap { return m_standard; }
-		public function get top50():Bitmap    { return m_top50;    }
-		public function get top25():Bitmap    { return m_top25;    }
-		public function get top8():Bitmap     { return m_top8;     }
+		public function get standard():BitmapData { return m_standard; }
+		public function get top50():BitmapData    { return m_top50;    }
+		public function get top25():BitmapData    { return m_top25;    }
+		public function get top8():BitmapData     { return m_top8;     }
 	}
 }

@@ -22,18 +22,18 @@
 
 package com.morepaul.tacobell.display
 {
-	import flash.display.Bitmap;
+	import flash.display.BitmapData;
 
 	public class TacoRace
 	{
-		private var m_icon : Bitmap;
+		private var m_icon : BitmapData;
 
-		public function TacoRace( asset : Bitmap )
+		public function TacoRace( asset : BitmapData )
 		{
 			super();
 			m_icon = asset;
 		}
 
-		public function get icon() : Bitmap { return m_icon;  }
+		public function get icon() : BitmapData { return m_icon;  }
 	}
 }
