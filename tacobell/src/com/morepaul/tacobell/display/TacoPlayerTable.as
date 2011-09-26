@@ -116,6 +116,8 @@ package com.morepaul.tacobell.display
 
 			var leftColBoundary : Number = 0;
 			var rightColBoundary : Number = colWidth;
+			
+			m_main.debug("w = " + this.width + ", h = " + this.height);
 
 			for (var i:int = 0; i < players.length; ++i)
 			{
@@ -190,12 +192,23 @@ package com.morepaul.tacobell.display
 				leftColBoundary += colWidth;
 				rightColBoundary += colWidth;
 			}
+			m_main.debug("w = " + this.width + ", h = " + this.height);
 
+			// Draw the divider between the player names and APM
 			var yStop : Number = Y_START + (Y_INCREMENT - Y_START);
 			m_dividers.graphics.moveTo(0,yStop);
 			m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR);
 			m_dividers.graphics.lineTo(this.x + this.width, yStop);
 			this.addChild(m_dividers);
+
+			// APM Label
+
+			var apmLabelTF : TextField = createPrettyTextField("APM");
+			var xVal : Number = (this.width / 2) - (apmLabelTF.width / 2);
+			var yVal : Number = Y_START + Y_INCREMENT;
+			apmLabelTF.x = xVal;
+			apmLabelTF.y = yVal;
+			addChild(apmLabelTF);
 		}
 
 
