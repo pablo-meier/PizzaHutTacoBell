@@ -4,7 +4,7 @@ I'm at the Pizza Hut!
 I'm at the Taco Bell!
 =====================	
 
-[I'm at the Combination Pizza Hut and Taco Bell](http://www.youtube.com/watch?v=EQ8ViYIeH04)
+[I'm at the Combination Pizza Hut and Taco Bell!](http://www.youtube.com/watch?v=EQ8ViYIeH04)
 =================================================
 
 
