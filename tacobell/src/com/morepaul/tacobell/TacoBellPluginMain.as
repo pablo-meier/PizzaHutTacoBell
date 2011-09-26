@@ -123,6 +123,11 @@ package com.morepaul.tacobell
 //			m_placard.display(data.match);
 		}
 
+		public function clear():void
+		{
+			m_table.clear();
+		}
+
 		/**
 		 * Gateway between our data-gathering (sockets,filesystem) and the actual
 		 * rendering.

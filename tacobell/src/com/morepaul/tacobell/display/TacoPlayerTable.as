@@ -212,6 +212,7 @@ package com.morepaul.tacobell.display
 		}
 
 
+
 		/** 
 		 * Makes a new TextField the way we want it! Initializes styles, sets contents, etc.
 		 */
@@ -225,6 +226,18 @@ package com.morepaul.tacobell.display
 			tf.antiAliasType = AntiAliasType.ADVANCED;
 
 			return tf;
+		}
+
+		/**
+		 * Clears the table of any data, separators, etc. To be done before we load
+		 * replays...
+		 */
+		public function clear():void
+		{
+			while ( this.numChildren > 0 )
+			{
+				removeChildAt(0);
+			}
 		}
 	}
 }
