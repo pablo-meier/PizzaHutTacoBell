@@ -39,11 +39,17 @@ package com.morepaul.tacobell.display
 	public class TacoPlayerTable extends Sprite
 	{
 		private static const Y_INCREMENT : Number = 60;
-		private static const Y_START : Number = 60;
+		private static const Y_START : Number = 20;
+
+		private static const BG_COLOR : uint = 0x4036FF;
+		private static const WINNER_COLOR : uint = 0x5147FF;
+		private static const DIVIDER_COLOR : uint = 0x00FF00;
+		private static const DIVIDER_THICKNESS : uint = 10;
 
 		private var m_media : TacoMediaManager;
 		private var m_prettyFormat : TextFormat;
 		private var m_background : Shape;
+		private var m_dividers : Shape;
 
 		private var m_main : TacoBellPluginMain;
 		private var m_table_debug : TextField;
@@ -54,6 +60,8 @@ package com.morepaul.tacobell.display
 			
 			m_background = new Shape();
 			this.addChild(m_background);
+			m_dividers = new Shape();
+			this.addChild(m_dividers);
 
 			m_main = m;
 
@@ -66,33 +74,34 @@ package com.morepaul.tacobell.display
 			m_prettyFormat.bold = true;
 			m_prettyFormat.color = 0x6BF8FF;
 			m_prettyFormat.font = "Arial";
-			m_prettyFormat.size = 16;
+			m_prettyFormat.size = 24;
+		}
+
+		public function set media( m : TacoMediaManager ):void
+		{ 
+			m_media = m;
 		}
 
 
 		public function positionElements():void
 		{
 			m_background.graphics.lineStyle();
-			m_background.graphics.beginFill(0x4036FF);
+			m_background.graphics.beginFill(BG_COLOR);
 			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 
 			var width_sandbox : Number = this.width;
 			var height_sandbox : Number = this.height;
 
-			m_background.graphics.drawRect(1,1, width_sandbox, height_sandbox);
+			m_background.graphics.drawRect(0,0, width_sandbox, height_sandbox);
 
 			this.width = width_sandbox;
 			this.height = height_sandbox;
-
 			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
-			m_background.graphics.endFill();
 
 			m_table_debug.x = (width / 2) - (m_table_debug.width / 2);
 			m_table_debug.y = 0;
 			addChild(m_table_debug);
 		}
-
-		public function set media( m : TacoMediaManager) : void { m_media = m; }
 
 
 		/**
@@ -108,8 +117,8 @@ package com.morepaul.tacobell.display
 			var numCols : Number = players.length;
 			var colWidth : Number = (this.width / numCols);
 
-			var rightColBoundary : Number = colWidth;
 			var leftColBoundary : Number = 0;
+			var rightColBoundary : Number = colWidth;
 
 			m_main.debug("[PlayerTable] x =  " + this.x + ", y = " + this.y);
 			m_main.debug("[PlayerTable] numCols = " + numCols + ", colWidth = " + colWidth );
@@ -125,6 +134,25 @@ package com.morepaul.tacobell.display
 				var xCol1 : Number = leftColBoundary + colIncrement;
 				var xCol2 : Number = leftColBoundary + (2 * colIncrement);
 				var xCol3 : Number = leftColBoundary + (3 * colIncrement);
+
+				// Draw the boundary lines, if necessary
+
+				if ( i != (players.length - 1) )
+				{
+					m_dividers.graphics.moveTo(rightColBoundary, 0);
+					m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR);
+					m_dividers.graphics.lineTo(rightColBoundary, this.y + this.height);
+					this.addChild(m_dividers);
+				}
+				if ( thisPlayer.winner )
+				{
+					var winnerBack : Shape = new Shape();
+					winnerBack.graphics.moveTo(0,0);
+					winnerBack.graphics.lineStyle();
+					winnerBack.graphics.beginFill(WINNER_COLOR);
+					winnerBack.graphics.drawRect(leftColBoundary,0, rightColBoundary - leftColBoundary, this.height);
+					this.addChild(winnerBack);
+				}
 
 				var nameStr   : String = thisPlayer.name;
 				var leagueStr : String = thisPlayer.league;
@@ -155,7 +183,6 @@ package com.morepaul.tacobell.display
 				leagueImg.y = yValue;
 
 
-
 				yValue += Y_INCREMENT;
 
 				// Place the APM -- 
@@ -171,6 +198,12 @@ package com.morepaul.tacobell.display
 				leftColBoundary += colWidth;
 				rightColBoundary += colWidth;
 			}
+
+			var yStop : Number = Y_START + (Y_INCREMENT - Y_START);
+			m_dividers.graphics.moveTo(0,yStop);
+			m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR);
+			m_dividers.graphics.lineTo(this.x + this.width, yStop);
+			this.addChild(m_dividers);
 		}
 
 
