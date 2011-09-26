@@ -45,9 +45,8 @@ package com.morepaul.tacobell.display
 		private var m_prettyFormat : TextFormat;
 		private var m_background : Shape;
 
-		private var m_table_debug : TextField;
-
 		private var m_main : TacoBellPluginMain;
+		private var m_table_debug : TextField;
 
 		public function TacoPlayerTable(m : TacoBellPluginMain):void
 		{ 
@@ -56,11 +55,11 @@ package com.morepaul.tacobell.display
 			m_background = new Shape();
 			this.addChild(m_background);
 
-			m_table_debug = new TextField();
-			m_table_debug.text = "TABLE REPORTING";
-			this.addChild(m_table_debug);
-
 			m_main = m;
+
+			m_table_debug = new TextField();
+			m_table_debug.text = "";
+			addChild(m_table_debug);
 
 			m_prettyFormat = new TextFormat();
 			m_prettyFormat.align = TextFormatAlign.CENTER;
@@ -112,9 +111,9 @@ package com.morepaul.tacobell.display
 			var rightColBoundary : Number = colWidth;
 			var leftColBoundary : Number = 0;
 
+			m_main.debug("[PlayerTable] x =  " + this.x + ", y = " + this.y);
 			m_main.debug("[PlayerTable] numCols = " + numCols + ", colWidth = " + colWidth );
 			m_main.debug("[PlayerTable] rightColBoundary = " + rightColBoundary + ", leftColBoundary = " + leftColBoundary);
-			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 			for (var i:int = 0; i < players.length; ++i)
 			{
 				var yValue : Number = Y_START;
@@ -172,7 +171,6 @@ package com.morepaul.tacobell.display
 				leftColBoundary += colWidth;
 				rightColBoundary += colWidth;
 			}
-			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 		}
 
 

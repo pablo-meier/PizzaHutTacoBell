@@ -71,49 +71,25 @@ package com.morepaul.tacobell
 
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 
-			m_debug = new TextField();
-			m_debug.text = "started!";
-			addChild(m_debug);
-
-			debug("stage width is " + stage.stageWidth + ", height is " + stage.stageHeight);
-
 			m_xmlParser = new TacoXmlParser();
 			m_fileLoader = new TacoFileLoader(this);
-
 			m_socket = new TacoSocket(this);
-			m_socket.connect("localhost", PORT); 
 
-			m_bg = new Shape();
-			this.addChild(m_bg);
-
-			m_media = new TacoMediaManager();
-
-//			m_animation = new TacoMatchEndAnimation(0, 0, width, height);
-//			this.addChild(m_animation);
-//
-//			m_curtain = new TacoCurtain(0, 0, width, height);
-//			this.addChild(m_curtain);
-
-			m_table = new TacoPlayerTable(this);
-			this.addChild(m_table);
-			m_table.media = m_media;
-
-//			m_placard = new TacoMatchPlacard(5, 
-//											m_table.y + m_table.height + 5, 
-//											width - 10,
-//											height * (1 / 4) - 10);
-//			this.addChild(m_placard);
-//			m_placard.media = m_media;
-
+			m_debug = new TextField();
+			m_debug.text = "TacoBell --- CHALUPA LOADED!";
 			addChild(m_debug);
 
-			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
+			debug("[TacoBellPluginMain]: Constructor.  stage width is " + stage.stageWidth + ", height is " + stage.stageHeight);
+
+			m_bg = new Shape();
+			m_media = new TacoMediaManager();
+
+			addEventListener(Event.ADDED_TO_STAGE, addedToStageListener);
 		} 
 
-
-		public function positionElements():void
+		private function addedToStageListener(e:Event):void
 		{
-			debug("positionElements called in TacoBellPluginMain!");
+			debug("Added to stage!");
 			m_debug.x = (stage.stageWidth / 2) - (m_debug.width / 2);
 			m_debug.y = (stage.stageHeight / 2) - (m_debug.height / 2);
 
@@ -121,11 +97,20 @@ package com.morepaul.tacobell
 			m_bg.graphics.beginFill(0x999999);
 			m_bg.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
 			m_bg.graphics.endFill();
+			this.addChild(m_bg);
 
+
+			m_table = new TacoPlayerTable(this);
+			m_table.media = m_media;
 			m_table.x = 5;
 			m_table.y = 5;
 			m_table.width = stage.stageWidth - 10;
 			m_table.height = (stage.stageHeight * (3 / 4)) - 5;
+			this.addChild(m_table);
+
+			addChild(m_debug);
+			m_socket.connect("localhost", PORT); 
+			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
 		}
 
 
@@ -144,11 +129,7 @@ package com.morepaul.tacobell
 		 */
 		public function renderXmlData( data : XML ):void
 		{
-			positionElements();
-			debug("Calling renderXmlData! m_table w = " + m_table.width + ", h = " + m_table.height);
-			debug("stageWidth, height = " +stage.stageWidth + ", " + stage.stageHeight);
 			render(m_xmlParser.parse(data));
-			debug("After renderXmlData... m_table w = " + m_table.width + ", h = " + m_table.height);
 		}
 
 		public function debug(msg : String):void
