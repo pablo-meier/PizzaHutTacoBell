@@ -49,7 +49,8 @@ package com.morepaul.tacobell.data
 				var rank : uint = Number(this_player.rank.text());
 				var apm : uint = Number(this_player.apm.text());
 
-				var winner : Boolean = Boolean(this_player.winner.text());
+				// Really AS3?  Boolean("false") == true?
+				var winner : Boolean = this_player.winner.text() == "true" ? true : false;
 
 				var playerData : TacoPlayer = new TacoPlayer();
 				playerData.name = nameStr;
@@ -65,7 +66,7 @@ package com.morepaul.tacobell.data
 			var mapName : String = data.map.name.text();
 			var time : String = data.time.text();
 
-			var loserGG : Boolean = Boolean(data.loser_gg.text());
+			var loserGG : Boolean = data.loser_gg.text() == "true" ? true : false;
 
 			var matchData : TacoMatch = new TacoMatch();
 

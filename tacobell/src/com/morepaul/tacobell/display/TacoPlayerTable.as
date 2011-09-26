@@ -42,7 +42,7 @@ package com.morepaul.tacobell.display
 		private static const Y_START : Number = 20;
 
 		private static const BG_COLOR : uint = 0x4036FF;
-		private static const WINNER_COLOR : uint = 0x5147FF;
+		private static const WINNER_COLOR : uint = 0x746AFF;
 		private static const DIVIDER_COLOR : uint = 0x00FF00;
 		private static const DIVIDER_THICKNESS : uint = 10;
 
@@ -87,7 +87,6 @@ package com.morepaul.tacobell.display
 		{
 			m_background.graphics.lineStyle();
 			m_background.graphics.beginFill(BG_COLOR);
-			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 
 			var width_sandbox : Number = this.width;
 			var height_sandbox : Number = this.height;
@@ -96,7 +95,6 @@ package com.morepaul.tacobell.display
 
 			this.width = width_sandbox;
 			this.height = height_sandbox;
-			m_main.debug("[PlayerTable] width = " + this.width + ", height = " + this.height);
 
 			m_table_debug.x = (width / 2) - (m_table_debug.width / 2);
 			m_table_debug.y = 0;
@@ -112,7 +110,6 @@ package com.morepaul.tacobell.display
 		public function display( players : Array ):void
 		{
 			positionElements();
-			m_main.debug("Called PositionElements!");
 
 			var numCols : Number = players.length;
 			var colWidth : Number = (this.width / numCols);
@@ -120,9 +117,6 @@ package com.morepaul.tacobell.display
 			var leftColBoundary : Number = 0;
 			var rightColBoundary : Number = colWidth;
 
-			m_main.debug("[PlayerTable] x =  " + this.x + ", y = " + this.y);
-			m_main.debug("[PlayerTable] numCols = " + numCols + ", colWidth = " + colWidth );
-			m_main.debug("[PlayerTable] rightColBoundary = " + rightColBoundary + ", leftColBoundary = " + leftColBoundary);
 			for (var i:int = 0; i < players.length; ++i)
 			{
 				var yValue : Number = Y_START;
@@ -144,15 +138,13 @@ package com.morepaul.tacobell.display
 					m_dividers.graphics.lineTo(rightColBoundary, this.y + this.height);
 					this.addChild(m_dividers);
 				}
-				if ( thisPlayer.winner )
-				{
-					var winnerBack : Shape = new Shape();
-					winnerBack.graphics.moveTo(0,0);
-					winnerBack.graphics.lineStyle();
-					winnerBack.graphics.beginFill(WINNER_COLOR);
-					winnerBack.graphics.drawRect(leftColBoundary,0, rightColBoundary - leftColBoundary, this.height);
-					this.addChild(winnerBack);
-				}
+				var bg_color : uint = thisPlayer.winner ? WINNER_COLOR : BG_COLOR;
+				var colBack : Shape = new Shape();
+				colBack.graphics.moveTo(0,0);
+				colBack.graphics.lineStyle();
+				colBack.graphics.beginFill(bg_color);
+				colBack.graphics.drawRect(leftColBoundary,0, rightColBoundary - leftColBoundary, this.height);
+				this.addChild(colBack);
 
 				var nameStr   : String = thisPlayer.name;
 				var leagueStr : String = thisPlayer.league;
