@@ -157,24 +157,29 @@ package com.morepaul.tacobell.display
 				var nameTF : TextField = createPrettyTextField(nameStr);
 				var leagueImg : Bitmap = m_media.league(leagueStr, rank);
 
-				addChild(raceImg);
-				addChild(nameTF);
-				addChild(leagueImg);
+				var nameTag : TacoTableNametag = new TacoTableNametag(raceImg, leagueImg, nameTF);
+				nameTag.x = xCol2 - (nameTag.width / 2);
+				nameTag.y = yValue - (nameTag.width / 2);
+				addChild(nameTag);
 
-				raceImg.width = 20;
-				raceImg.height = 20;
-
-				leagueImg.width = 20;
-				leagueImg.height = 20;
-
-				// place the name row...
-				raceImg.x   = xCol1 - (raceImg.width / 2);
-				nameTF.x    = xCol2 - (nameTF.width / 2);
-				leagueImg.x = xCol3 - (raceImg.width / 2 );
-
-				raceImg.y   = yValue;
-				nameTF.y    = yValue;
-				leagueImg.y = yValue;
+//				addChild(raceImg);
+//				addChild(nameTF);
+//				addChild(leagueImg);
+//
+//				raceImg.width = 20;
+//				raceImg.height = 20;
+//
+//				leagueImg.width = 20;
+//				leagueImg.height = 20;
+//
+//				// place the name row...
+//				raceImg.x   = xCol1 - (raceImg.width / 2);
+//				nameTF.x    = xCol2 - (nameTF.width / 2);
+//				leagueImg.x = xCol3 - (raceImg.width / 2 );
+//
+//				raceImg.y   = yValue;
+//				nameTF.y    = yValue;
+//				leagueImg.y = yValue;
 
 
 				yValue += Y_INCREMENT;
