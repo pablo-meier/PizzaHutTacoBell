@@ -108,6 +108,14 @@ package com.morepaul.tacobell
 			m_table.height = (stage.stageHeight * (3 / 4)) - 5;
 			this.addChild(m_table);
 
+			m_placard = new TacoMatchPlacard(this);
+			m_placard.media = m_media;
+			m_placard.x = 5;
+			m_placard.y = 5 + m_table.height;
+			m_placard.width = stage.stageWidth - 10;
+			m_placard.height= (stage.stageHeight * (1 / 4)) - 5;
+			this.addChild(m_placard);
+
 			addChild(m_debug);
 			m_socket.connect("localhost", PORT); 
 			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
@@ -120,7 +128,7 @@ package com.morepaul.tacobell
 //			m_animation.play(data);
 //			m_curtain.display();
 			m_table.display(data.players);
-//			m_placard.display(data.match);
+			m_placard.display(data.match);
 		}
 
 		public function clear():void

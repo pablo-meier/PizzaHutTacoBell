@@ -48,6 +48,18 @@ package com.morepaul.tacobell.display
 		private var m_protoss : TacoRace;
 		private var m_random  : TacoRace;
 
+		private var m_shakuras  : BitmapData;
+		private var m_antiga    : BitmapData;
+		private var m_xelnaga   : BitmapData;
+		private var m_taldarim  : BitmapData;
+		private var m_backwater : BitmapData;
+		private var m_searing   : BitmapData;
+		private var m_shattered : BitmapData;
+		private var m_typhon    : BitmapData;
+		private var m_nerazim   : BitmapData;
+		private var m_abyssal   : BitmapData;
+
+
 		private var m_assets : Array;
 
 		public function TacoMediaManager():void
@@ -110,6 +122,26 @@ package com.morepaul.tacobell.display
 		}
 
 
+		public function map( name : String ) : Bitmap
+		{
+			var img : BitmapData;
+			switch (name)
+			{
+				case "Shakuras Plateau"     : img = m_shakuras; break;
+				case "Antiga Shipyard "     : img = m_antiga; break;
+				case "Xel'Naga Caverns"     : img = m_xelnaga; break;
+				case "Tal'Darim Altar LE"   : img = m_taldarim; break;
+				case "Backwater Gulch"      : img = m_backwater; break;
+				case "Searing Crater"       : img = m_searing; break;
+				case "The Shattered Temple" : img = m_shattered; break;
+				case "Typhon Peaks"         : img = m_typhon; break;
+				case "Nerazim Crypt"        : img = m_nerazim; break;
+				case "Abyssal Caverns"      : img = m_abyssal; break;
+			}
+			return new Bitmap(img);
+		}
+
+
 
 		/* Embeds and their plumbing at the bottom, because they're ugly as hell. */
 		private function linkWithEmbedded():void
@@ -167,6 +199,17 @@ package com.morepaul.tacobell.display
 			var gmt25 : BitmapData = new GrandmasterTopTwentyFiveIcon().bitmapData;
 			var gmt8  : BitmapData = new GrandmasterTopEightIcon().bitmapData;
 			m_grandmaster = new TacoLeague("grandmaster", gmStd, gmt50, gmt25, gmt8);
+
+			m_shakuras = new ShakurasPlateau().bitmapData;
+			m_antiga = new AntigaShipyard().bitmapData;
+			m_xelnaga = new XelNagaCaverns().bitmapData;  
+			m_taldarim = new TalDarimAltar().bitmapData;
+			m_backwater = new BackwaterGulch().bitmapData;
+			m_searing = new SearingCrater().bitmapData;
+			m_shattered = new ShatteredTemple().bitmapData;
+			m_typhon = new TyphonPeaks().bitmapData;
+			m_nerazim = new NerazimCrypt().bitmapData;
+			m_abyssal = new AbyssalCaverns().bitmapData;
 		}
 
 		// RACES
@@ -242,5 +285,28 @@ package com.morepaul.tacobell.display
 		private var GrandmasterTopTwentyFiveIcon : Class;
 		[Embed(source="../../../../../assets/leagues/grandmaster/top8.png")]
 		private var GrandmasterTopEightIcon : Class;
+
+
+		// MAPS -- 1v1
+		[Embed(source="../../../../../assets/maps/1v1/xelnaga_caverns.png")]
+		private var XelNagaCaverns : Class;
+		[Embed(source="../../../../../assets/maps/1v1/taldarim_altar.png")]
+		private var TalDarimAltar : Class;
+		[Embed(source="../../../../../assets/maps/1v1/antiga_shipyard.png")]
+		private var AntigaShipyard : Class;
+		[Embed(source="../../../../../assets/maps/1v1/nerazim_crypt.png")]
+		private var NerazimCrypt : Class;
+		[Embed(source="../../../../../assets/maps/1v1/abyssal_caverns.png")]
+		private var AbyssalCaverns : Class;
+		[Embed(source="../../../../../assets/maps/1v1/backwater_gulch.png")]
+		private var BackwaterGulch : Class;
+		[Embed(source="../../../../../assets/maps/1v1/searing_crater.png")]
+		private var SearingCrater : Class;
+		[Embed(source="../../../../../assets/maps/1v1/shattered_temple.png")]
+		private var ShatteredTemple : Class;
+		[Embed(source="../../../../../assets/maps/1v1/typhon_peaks.png")]
+		private var TyphonPeaks : Class;
+		[Embed(source="../../../../../assets/maps/1v1/shakuras_plateau.png")]
+		private var ShakurasPlateau : Class;
 	}
 }
