@@ -65,14 +65,8 @@ public class PizzaHutPluginMain extends BasePlugin
 	private Socket m_tacoBell;
 	
 	/** Reference to our new replay listener.  */
-	private NewReplayListener m_newReplayListener;
+	private PizzaHutNewReplayListener m_newReplayListener;
 	
-	/** Replay Utils to calculate API. */
-	private ReplayUtilsApi m_replayUtils;
-
-	/** ProfileApi to fetch the player data. */
-	private ProfileApi m_profileApi;
-
 	/** XML tools. */
 	private DocumentBuilderFactory m_docFactory; 
 	private DocumentBuilder m_docBuilder; 
@@ -89,25 +83,6 @@ public class PizzaHutPluginMain extends BasePlugin
 	/** Manages our network connections. */
 	private PizzaHutSocketListener m_listener;
 
-	/** Attributes we display for each player. */
-	private enum PlayerAttribute 
-	{
-		NAME,
-		RACE,
-		LEAGUE,
-		APM,
-		RANK
-	}
-
-	/** Attributes for the match itself */
-	private enum MatchAttribute
-	{
-		TIME,
-		MAP,
-		LOSER_GG
-	}
-
-
 	@Override
 	public void init( final PluginDescriptor pluginDescriptor, final PluginServices pluginServices, final GeneralServices generalServices ) 
 	{
@@ -117,10 +92,6 @@ public class PizzaHutPluginMain extends BasePlugin
 		PizzaHutSocketListener listener = new PizzaHutSocketListener(this, PORT);
 		listener.start();
 		
-		m_replayUtils = generalServices.getReplayUtilsApi();
-		m_profileApi = generalServices.getProfileApi();
-		m_profiles = new HashMap<String, IProfile>();
-
 		System.out.println("[PIZZAHUT] initing!");
 		try
 		{
@@ -140,77 +111,12 @@ public class PizzaHutPluginMain extends BasePlugin
 			e.printStackTrace();
 		}
 
-		// the 'l' stands for Y U NO LAMBDAS ?!?!?
-		final PizzaHutPluginMain l_plugin = this;
-	
-		// Register a new replay listener
-		generalServices.getCallbackApi().addNewReplayListener( m_newReplayListener = new NewReplayListener() {
-			
-			@Override
-			public void newReplayDetected( final File replayFile ) {
+		m_profiles = new HashMap<String, IProfile>();
 
-				// Start with a clean slate.
-				m_profiles.clear();
-
-				// Cached info is enough for us: we acquire replay with ReplayFactory.getReplay()
-				final IReplay replay = generalServices.getReplayFactoryApi().getReplay( replayFile.getAbsolutePath(), null );
-				if ( replay == null )
-				{
-					return; // Failed to parse replay
-				}
-				System.out.println("[PIZZAHUT] Got replay!");
-
-				IPlayer[] players = replay.getPlayers();
-
-				// Search for profiles!
-				for (int i = 0; i < players.length; ++i)
-				{
-					final IPlayerId id = players[i].getPlayerId();
-					final String name = id.getName();
-					m_profileApi.queryProfile(id, new PizzaHutProfileGetter(l_plugin, name), false, false);
-				}
-				m_profileQueryTime = System.currentTimeMillis();
-
-				int numPlayers = players.length;
-
-				int gameLength = replay.getGameLengthSec();
-				double minutes = gameLength / 60;
-	
-				ArrayList<HashMap<PlayerAttribute, String>> playerInfo = new ArrayList<HashMap<PlayerAttribute,String>>(numPlayers);
-
-				for (int i = 0; i < numPlayers; ++i)
-				{
-					HashMap<PlayerAttribute, String> thisSet = new HashMap<PlayerAttribute, String>();
-					thisSet.put(PlayerAttribute.NAME, players[i].getPlayerId().getName());
-					thisSet.put(PlayerAttribute.RACE, players[i].getRaceString());
-
-					int apm = m_replayUtils.calculatePlayerApm(replay, players[i]);
-					thisSet.put(PlayerAttribute.APM, Integer.toString(apm));
-					thisSet.put(PlayerAttribute.LEAGUE, "UNKNOWN");
-					thisSet.put(PlayerAttribute.RANK, "UNKNOWN");
-
-					playerInfo.add(i, thisSet);
-				}
-
-				HashMap<MatchAttribute,String> matchInfo = new HashMap<MatchAttribute,String>();
-
-				int wholeMinutes = (int) Math.floor(minutes);
-				String seconds = Integer.toString((int) gameLength - (wholeMinutes * 60));
-				if (seconds.length() == 1)
-					seconds = "0" + seconds;
-
-				matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + seconds);
-
-				matchInfo.put(MatchAttribute.MAP, replay.getMapName());
-
-				matchInfo.put(MatchAttribute.LOSER_GG, "true");
-
-
-				System.out.println("[PIZZAHUT] Filled Hashes, now to XML!");
-				printXmlFile(playerInfo, matchInfo);
-				System.out.println("[PIZZAHUT] I'M AT THE PIZZA HUT!");
-			}
-		} );
+		ReplayUtilsApi replayUtils = generalServices.getReplayUtilsApi();
+		ProfileApi profileApi = generalServices.getProfileApi();
+		m_newReplayListener = new PizzaHutNewReplayListener(this, replayUtils, profileApi, generalServices);
+		generalServices.getCallbackApi().addNewReplayListener(m_newReplayListener);	
 	}
 
 
@@ -218,13 +124,16 @@ public class PizzaHutPluginMain extends BasePlugin
 	{
 		m_profiles.put(name, profile);
 	}
-
 	
 	private boolean isProfileTimeout()
 	{
 		return (System.currentTimeMillis() - m_profileQueryTime) > PROFILE_WAIT_TIMEOUT;
 	}
 
+	public void setTimeoutStart(long time)
+	{
+		m_profileQueryTime = time;
+	}
 
 	/**
 	 * Sets the OutputStream we send out New Replay data out of.
@@ -237,6 +146,12 @@ public class PizzaHutPluginMain extends BasePlugin
 	public void setSocketListener(PizzaHutSocketListener listener)
 	{
 		m_listener = listener;
+	}
+
+
+	public void clearProfiles()
+	{
+		m_profiles.clear();
 	}
 	
 
@@ -258,7 +173,7 @@ public class PizzaHutPluginMain extends BasePlugin
 	/**
 	 * Print the game data to an XML file for TACOBELL to read/render.
 	 */
-	private void printXmlFile(ArrayList<HashMap<PlayerAttribute, String>> players, 
+	public void printXmlFile(ArrayList<HashMap<PlayerAttribute, String>> players, 
 								HashMap<MatchAttribute,String> match)
 	{
 	  try {
