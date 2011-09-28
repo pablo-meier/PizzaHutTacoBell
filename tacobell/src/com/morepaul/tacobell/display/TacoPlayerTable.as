@@ -158,9 +158,9 @@ package com.morepaul.tacobell.display
 				var leagueImg : Bitmap = m_media.league(leagueStr, rank);
 
 				var nameTag : TacoTableNametag = new TacoTableNametag(raceImg, leagueImg, nameTF);
-				nameTag.x = xCol2 - (nameTag.width / 2);
-				nameTag.y = yValue - (nameTag.width / 2);
 				addChild(nameTag);
+				nameTag.x = xCol2 - (nameTag.width / 2);
+				nameTag.y = yValue - (nameTag.height / 2);
 
 //				addChild(raceImg);
 //				addChild(nameTF);
