@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Plugin descriptor, contains plugin meta-data. -->
+<plugin docVersion="1.0">
+	<name>PIZZAHUT</name>
+	
+	<authorFirstName>Paul</authorFirstName>
+	<authorLastName>Meier</authorLastName>
+	<authorEmail>pablo.a.meier@gmail.com</authorEmail>
+	
+	<version>1.0</version>
+	<releaseDate>2011-09-27</releaseDate> 
+	<apiVersion>2.1</apiVersion> <!-- Plugin API version implemented/used by the plugin. -->
+	<homePage>https://www.github.com/paul-meier/PizzaHutTacoBell/</homePage>
+	
+	<!-- Description can be plain text or HTML text, can contain multiple lines. -->
+	<description isHtml="true"><![CDATA[
+		<p>This plugin parses some data from new replays, and sends the results out of a Socket (currently hard-coded to port 8080) in XML format.  It was built to be used with TacoBell, the SWF plugin I wrote for XSplit, but I guess you could use this in isolation for anything.</p>
+		<p>Replay auto-save must be enabled for this plugin to work.</p>
+		<p>Source code is available on <a href="https://github.com/paul-meier/PizzaHutTacoBell">Github</a>. This is all MIT licensed, so do what you want with it but make it free, under the same conditions (Good luck weeding out all the Pablo-specific content though). Also credit me if you get the chance :-p.</p>
+	]]></description>
+	
+	<!--
+		The main class must implement the "hu.belicza.andras.sc2gearspluginapi.Plugin" interface,
+		and must have a public no-arg constructor (a constructor that takes no arguments).
+		
+		The main class must also be unique: cannot be added 2 plugins with the same main class!
+	-->
+	<mainClass>com.morepaul.pizzahut.PizzaHutPluginMain</mainClass>
+</plugin>
