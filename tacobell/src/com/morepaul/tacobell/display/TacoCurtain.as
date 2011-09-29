@@ -25,6 +25,10 @@ package com.morepaul.tacobell.display
 
 	import flash.display.Shape;
 	import flash.display.Sprite;
+	import flash.events.Event;
+	import flash.text.TextField;
+
+	import com.morepaul.tacobell.TacoBellPluginMain;
 
 	/**
 	 * Class that separates the various phases of the show -- like a curtain 
@@ -37,23 +41,36 @@ package com.morepaul.tacobell.display
 	{
 
 		private var m_background : Shape;
+		private var m_main : TacoBellPluginMain;
+		private var m_placeHolder : TextField;
 
-		public function TacoCurtain(xPos : Number,
-									yPos : Number,
-									widthSet : Number,
-									heightSet : Number):void
+		public function TacoCurtain( main : TacoBellPluginMain ):void
 		{
 			super();
 
-			this.x = xPos;
-			this.y = yPos;
-			this.width = widthSet;
-			this.height = heightSet;
-			
-			this.graphics.lineStyle();
-			this.graphics.beginFill(0x000000);
-			this.graphics.drawRect(0,0, this.width, this.height);
-			this.graphics.endFill();
+			m_main = main;
+
+			m_background = new Shape();
+			this.addChild(m_background);
+
+			m_placeHolder = new TextField();
+			m_placeHolder.text = "Curtain Lowered!";
+			this.addChild(m_placeHolder);
+
+			this.addEventListener(Event.ADDED_TO_STAGE, addedListener);
+		}
+
+		private function addedListener(e:Event):void
+		{
+			var widthSandbox : Number = this.width;
+			var heightSandbox : Number = this.height;
+
+			m_background.graphics.lineStyle();
+			m_background.graphics.beginFill(0x00000000);
+			m_background.graphics.drawRect(0,0, this.width, this.height);
+
+			this.width = widthSandbox;
+			this.height = heightSandbox;
 		}
 
 		/**
@@ -61,6 +78,17 @@ package com.morepaul.tacobell.display
 		 */
 		public function display():void
 		{
+			var widthSandbox : Number = this.width;
+			var heightSandbox : Number = this.height;
+
+			m_background.graphics.lineStyle();
+			m_background.graphics.beginFill(0xAA000000);
+			m_background.graphics.drawRect(0,0, this.width, this.height);
+
+			this.width = widthSandbox;
+			this.height = heightSandbox;
+
+			m_placeHolder.text = "";
 		}
 	}
 }
