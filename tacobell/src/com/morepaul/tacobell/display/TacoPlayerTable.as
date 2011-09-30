@@ -27,10 +27,7 @@ package com.morepaul.tacobell.display
 	import flash.display.Graphics;
 	import flash.display.Shape;
 	import flash.display.Sprite
-	import flash.text.AntiAliasType;
-	import flash.text.TextField;
-	import flash.text.TextFormat;
-	import flash.text.TextFormatAlign;
+	import flash.text.*;
 
 	import com.morepaul.tacobell.data.TacoMatch;
 	import com.morepaul.tacobell.data.TacoPlayer;
@@ -227,7 +224,7 @@ package com.morepaul.tacobell.display
 
 			tf.text = contents;
 			tf.setTextFormat(m_prettyFormat);
-
+			tf.autoSize = TextFieldAutoSize.LEFT;
 			tf.antiAliasType = AntiAliasType.ADVANCED;
 
 			return tf;

@@ -43,6 +43,10 @@ package com.morepaul.tacobell.display
 
 		private var m_placeHolder : TextField;
 
+		/** Duplicated from TacoPlayerTable, though both containers have their own 
+		 * in case we'd like to style them differently. */
+		private var m_prettyFormat : TextFormat;
+
 		public function TacoMatchPlacard( main : TacoBellPluginMain ):void
 		{
 			super(); 
@@ -54,6 +58,13 @@ package com.morepaul.tacobell.display
 			m_placeHolder = new TextField();
 			m_placeHolder.text = "Awaiting Match!";
 			this.addChild(m_placeHolder);
+
+			m_prettyFormat = new TextFormat();
+			m_prettyFormat.align = TextFormatAlign.RIGHT;
+			m_prettyFormat.bold = true;
+			m_prettyFormat.color = 0x6BF8FF;
+			m_prettyFormat.font = "Arial";
+			m_prettyFormat.size = 24;
 
 			addEventListener(Event.ADDED_TO_STAGE, addedListener);
 		}
@@ -88,20 +99,49 @@ package com.morepaul.tacobell.display
 		 */
 		public function display( matchData : TacoMatch ):void
 		{
+			// HACKHACKHACKHACK
+			m_placeHolder.text = "";
+			this.addChild(m_placeHolder);
+
 			var mapName : String = matchData.map;
 			var mapImg : Bitmap = m_media.map(mapName);
-			mapImg.width = 100;
-			mapImg.height= 100;
+			this.scaleOnY(mapImg);
 			mapImg.x = 5;
 			mapImg.y = 5;
-
 			this.addChild(mapImg);
 
-			var mapTF : TextField = new TextField();
-			mapTF.text = mapName;
-			mapTF.x = (this.width / 2) - (mapTF.width / 2);
-			mapTF.y = (this.height / 2) - (mapTF.height / 2);
+			var mapTF : TextField = makePrettyTextField(mapName);
+			mapTF.x = this.width - (mapTF.width + 5);
+			mapTF.y = this.height - (mapTF.height + 5);
 			this.addChild(mapTF);
+
+			var timeTF : TextField = makePrettyTextField(matchData.time);
+			timeTF.x = this.width - (timeTF.width + 5);
+			timeTF.y = 5;
+			this.addChild(timeTF);
+		}
+
+		private function makePrettyTextField( str : String ):TextField
+		{
+			var tf : TextField = new TextField();
+			tf.text = str;
+			tf.setTextFormat(m_prettyFormat);
+			tf.antiAliasType = AntiAliasType.ADVANCED;
+			tf.autoSize = TextFieldAutoSize.LEFT;
+			return tf;
+		}
+
+		/**
+		 * Scales the map graphic to fit the constraint of this container's
+		 * y value.
+		 */
+		private function scaleOnY( img : Bitmap ):void
+		{
+			var targetHeight : Number = this.height - 10;
+			var scaleValue : Number = targetHeight / img.height;
+
+			img.width  *= scaleValue;
+			img.height *= scaleValue;
 		}
 	}
 }

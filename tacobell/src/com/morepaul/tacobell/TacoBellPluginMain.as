@@ -116,12 +116,12 @@ package com.morepaul.tacobell
 			m_placard.height= (stage.stageHeight * (1 / 4)) - 5;
 			this.addChild(m_placard);
 
-			m_curtain = new TacoCurtain(this);
-			m_curtain.x = 0;
-			m_curtain.y = 0;
-			m_curtain.width = stage.stageWidth;
-			m_curtain.height = stage.stageHeight;
-			this.addChild(m_curtain);
+//			m_curtain = new TacoCurtain(this);
+//			m_curtain.x = 0;
+//			m_curtain.y = 0;
+//			m_curtain.width = stage.stageWidth;
+//			m_curtain.height = stage.stageHeight;
+//			this.addChild(m_curtain);
 
 			addChild(m_debug);
 			m_socket.connect("localhost", PORT); 
