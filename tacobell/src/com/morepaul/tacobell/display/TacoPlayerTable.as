@@ -32,13 +32,12 @@ package com.morepaul.tacobell.display
 
 	public class TacoPlayerTable extends Sprite
 	{
-		private static const Y_INCREMENT : Number = 60;
-		private static const Y_START : Number = 20;
-
 		private static const BG_COLOR : uint = 0x4036FF;
 		private static const WINNER_COLOR : uint = 0x746AFF;
 		private static const DIVIDER_COLOR : uint = 0x00FF00;
 		private static const DIVIDER_THICKNESS : uint = 10;
+		private static const DEFAULT_TF_SIZE : uint = 24
+
 
 		private var m_media : TacoMediaManager;
 		private var m_prettyFormat : TextFormat;
@@ -72,7 +71,7 @@ package com.morepaul.tacobell.display
 			m_prettyFormat.bold = true;
 			m_prettyFormat.color = 0x6BF8FF;
 			m_prettyFormat.font = "Arial";
-			m_prettyFormat.size = 24;
+			m_prettyFormat.size = DEFAULT_TF_SIZE;
 
 			this.addEventListener(Event.ADDED_TO_STAGE, addedListener);
 		}
@@ -135,20 +134,19 @@ package com.morepaul.tacobell.display
 
 			var leftColBoundary : Number = 0;
 			var rightColBoundary : Number = colWidth;
+
+			var yStart : Number = (this.height / (TacoPlayer.NUM_ROWS * 2));
+			var yIncrement : Number = this.height / TacoPlayer.NUM_ROWS;
 			
 			m_main.debug("w = " + this.width + ", h = " + this.height);
 
 			for (var i:int = 0; i < players.length; ++i)
 			{
-				var yValue : Number = Y_START;
+				var yValue : Number = yStart;
 
 				var thisPlayer : TacoPlayer = players[i];
 
-				// Define the boundaries of the column...
-				var colIncrement : Number = (rightColBoundary - leftColBoundary) / 4;
-				var xCol1 : Number = leftColBoundary + colIncrement;
-				var xCol2 : Number = leftColBoundary + (2 * colIncrement);
-				var xCol3 : Number = leftColBoundary + (3 * colIncrement);
+				var xColMid : Number = ((rightColBoundary - leftColBoundary) / 2) + leftColBoundary; 
 
 				// Draw the boundary lines, if necessary
 
@@ -177,19 +175,32 @@ package com.morepaul.tacobell.display
 				var nameTF : TextField = createPrettyTextField(nameStr);
 				var leagueImg : Bitmap = m_media.league(leagueStr, rank);
 
-				var nameTag : TacoTableNametag = new TacoTableNametag(raceImg, leagueImg, nameTF);
-				safelyAddToStage(nameTag);
-				nameTag.x = xCol2 - (nameTag.width / 2);
-				nameTag.y = yValue - (nameTag.height / 2);
+				scaleOnY(raceImg, yValue);
+				raceImg.x = xColMid - raceImg.width;
+				raceImg.y = 0;
+				safelyAddToStage(raceImg);
 
-				yValue += Y_INCREMENT;
+				scaleOnY(leagueImg, yValue);
+				leagueImg.x = xColMid;
+				leagueImg.y = 0;
+				safelyAddToStage(leagueImg);
+
+				var yDivider : Number = yValue / 2;
+				scaleTextField(nameTF, yValue + yDivider, yValue);
+				nameTF.x = xColMid - (nameTF.width / 2);
+				nameTF.y = yValue + yDivider - (nameTF.height / 2);
+				safelyAddToStage(nameTF);
+
+
+				yValue += yIncrement;
 
 				// Place the APM -- 
 				var apmStr : String = thisPlayer.apm.toString();
 				var apmTF : TextField = createPrettyTextField(apmStr);
+				scaleTextField(apmTF, yValue, yValue - yStart);
 
-				apmTF.x = xCol2 - (apmTF.width / 2);
-				apmTF.y = yValue;
+				apmTF.x = xColMid - (apmTF.width / 2);
+				apmTF.y = yValue - (apmTF.height / 2);
 
 				safelyAddToStage(apmTF);
 
@@ -198,8 +209,8 @@ package com.morepaul.tacobell.display
 			}
 			m_main.debug("w = " + this.width + ", h = " + this.height);
 
-			// Draw the divider between the player names and APM
-			var yStop : Number = Y_START + (Y_INCREMENT - Y_START);
+			// Draw the divider between the player names and Stats
+			var yStop : Number = this.height / TacoPlayer.NUM_ROWS;
 			m_dividers.graphics.moveTo(0,yStop);
 			m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR, 1.0, false, 
 											LineScaleMode.NORMAL, CapsStyle.NONE, JointStyle.MITER);
@@ -207,15 +218,39 @@ package com.morepaul.tacobell.display
 			safelyAddToStage(m_dividers);
 
 			// APM Label
-
 			var apmLabelTF : TextField = createPrettyTextField("APM");
 			var xVal : Number = (this.width / 2) - (apmLabelTF.width / 2);
-			var yVal : Number = Y_START + Y_INCREMENT;
+			var yVal : Number = yStop + (yStop / 2) - (apmLabelTF.height / 2);
 			apmLabelTF.x = xVal;
 			apmLabelTF.y = yVal;
+			apmLabelTF.opaqueBackground = 0x000000;
 			safelyAddToStage(apmLabelTF);
 		}
 
+
+		private function scaleOnY( img : Bitmap, target : Number ):void
+		{
+			var scaleValue : Number = target / img.height;
+
+			img.width  *= scaleValue;
+			img.height *= scaleValue;
+		}
+
+
+
+		private function scaleTextField( tf : TextField, startY : Number, topWall : Number ):void
+		{
+			var optimistic : Number = startY - topWall;
+			m_prettyFormat.size = optimistic;
+			tf.setTextFormat(m_prettyFormat);
+			while (startY - (tf.height / 2) < topWall)
+			{
+				optimistic -= 4;
+				m_prettyFormat.size = optimistic;
+				tf.setTextFormat(m_prettyFormat);
+			}
+			m_prettyFormat.size = DEFAULT_TF_SIZE;
+		}
 
 
 		/** 

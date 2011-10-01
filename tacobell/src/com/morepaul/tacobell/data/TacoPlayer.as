@@ -30,6 +30,9 @@ package com.morepaul.tacobell.data
 	{
 		public function TacoPlayer():void { super(); }
 
+		// How many rows will you need to display this content?
+		public static const NUM_ROWS : uint = 2;
+
 		private var m_name : String;
 		private var m_apm : uint;
 		private var m_race : String;
