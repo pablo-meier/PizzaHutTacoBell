@@ -37,6 +37,8 @@ package com.morepaul.tacobell
 
 	public class TacoBellPluginMain extends Sprite
 	{
+		private static const BG_COLOR : uint = 0x350b0b;
+		
 		/** Hard-coded LIKE A BAWS */
 		private var PORT : int = 8080;
 
@@ -97,6 +99,7 @@ package com.morepaul.tacobell
 
 			m_debug.x = (stage.stageWidth / 2) - (m_debug.width / 2);
 			m_debug.y = (stage.stageHeight / 2) - (m_debug.height / 2);
+			m_debug.alpha = 0;
 
 			m_table = new TacoPlayerTable(this);
 			m_table.media = m_media;
@@ -120,7 +123,7 @@ package com.morepaul.tacobell
 			m_debug.text = "";
 			debug("Resize called! Width is now " + stage.stageWidth +", height = " + stage.stageHeight);
 			m_bg.graphics.lineStyle();
-			m_bg.graphics.beginFill(0x999999);
+			m_bg.graphics.beginFill(BG_COLOR);
 			m_bg.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
 			m_bg.graphics.endFill();
 			this.addChild(m_bg);

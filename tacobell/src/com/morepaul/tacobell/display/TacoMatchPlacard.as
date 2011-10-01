@@ -45,8 +45,8 @@ package com.morepaul.tacobell.display
 
 		/** Tweak prettiness/layout settings here. */
 		private static const BORDER_SIZE : Number = 5;
-		private static const BG_COLOR : uint = 0x222222;
-		private static const TEXT_COLOR : uint = 0x6BF8FF;
+		private static const BG_COLOR : uint = 0x350b0b;
+		private static const TEXT_COLOR : uint = 0xffb3b3;
 
 
 		/** Duplicated from TacoPlayerTable, though both containers have their own 

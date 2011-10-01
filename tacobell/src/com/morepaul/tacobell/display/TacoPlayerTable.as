@@ -32,12 +32,14 @@ package com.morepaul.tacobell.display
 
 	public class TacoPlayerTable extends Sprite
 	{
-		private static const BG_COLOR : uint = 0x4036FF;
-		private static const WINNER_COLOR : uint = 0x746AFF;
-		private static const DIVIDER_COLOR : uint = 0x00FF00;
+		private static const BG_COLOR : uint = 0xd88888;
+		private static const WINNER_COLOR : uint = 0xffb2b2;
+
+		private static const DIVIDER_COLOR : uint = 0x350b0b;
 		private static const DIVIDER_THICKNESS : uint = 10;
 		private static const DEFAULT_TF_SIZE : uint = 24
 
+		private static const TEXT_COLOR : uint = 0x501818;
 
 		private var m_media : TacoMediaManager;
 		private var m_prettyFormat : TextFormat;
@@ -69,7 +71,7 @@ package com.morepaul.tacobell.display
 			m_prettyFormat = new TextFormat();
 			m_prettyFormat.align = TextFormatAlign.CENTER;
 			m_prettyFormat.bold = true;
-			m_prettyFormat.color = 0x6BF8FF;
+			m_prettyFormat.color = TEXT_COLOR;
 			m_prettyFormat.font = "Arial";
 			m_prettyFormat.size = DEFAULT_TF_SIZE;
 
@@ -223,7 +225,8 @@ package com.morepaul.tacobell.display
 			var yVal : Number = yStop + (yStop / 2) - (apmLabelTF.height / 2);
 			apmLabelTF.x = xVal;
 			apmLabelTF.y = yVal;
-			apmLabelTF.opaqueBackground = 0x000000;
+			apmLabelTF.opaqueBackground = DIVIDER_COLOR;
+			apmLabelTF.textColor = WINNER_COLOR;
 			safelyAddToStage(apmLabelTF);
 		}
 
