@@ -23,14 +23,11 @@
 package com.morepaul.tacobell.display
 {
 
-	import flash.display.Bitmap;
-	import flash.display.Graphics;
-	import flash.display.Shape;
-	import flash.display.Sprite
+	import flash.display.*;
+	import flash.events.*;
 	import flash.text.*;
 
-	import com.morepaul.tacobell.data.TacoMatch;
-	import com.morepaul.tacobell.data.TacoPlayer;
+	import com.morepaul.tacobell.data.*;
 	import com.morepaul.tacobell.TacoBellPluginMain;
 
 	public class TacoPlayerTable extends Sprite
@@ -48,23 +45,27 @@ package com.morepaul.tacobell.display
 		private var m_background : Shape;
 		private var m_dividers : Shape;
 
+		private var m_players : Array;
+
 		private var m_main : TacoBellPluginMain;
-		private var m_table_debug : TextField;
+		private var m_placeholder : TextField;
 
 		public function TacoPlayerTable(m : TacoBellPluginMain):void
 		{ 
 			super(); 
 			
+			m_players = new Array();
+
 			m_background = new Shape();
-			this.addChild(m_background);
+			safelyAddToStage(m_background);
 			m_dividers = new Shape();
-			this.addChild(m_dividers);
+			safelyAddToStage(m_dividers);
 
 			m_main = m;
 
-			m_table_debug = new TextField();
-			m_table_debug.text = "";
-			addChild(m_table_debug);
+			m_placeholder = new TextField();
+			m_placeholder.text = "Awaiting Match!";
+			safelyAddToStage(m_placeholder);
 
 			m_prettyFormat = new TextFormat();
 			m_prettyFormat.align = TextFormatAlign.CENTER;
@@ -72,6 +73,15 @@ package com.morepaul.tacobell.display
 			m_prettyFormat.color = 0x6BF8FF;
 			m_prettyFormat.font = "Arial";
 			m_prettyFormat.size = 24;
+
+			this.addEventListener(Event.ADDED_TO_STAGE, addedListener);
+		}
+
+		private function addedListener(e:Event):void
+		{
+			this.drawBackground();
+			m_placeholder.x = (this.width / 2) - (m_placeholder.width / 2);
+			m_placeholder.y = (this.height / 2) - (m_placeholder.height / 2);
 		}
 
 		public function set media( m : TacoMediaManager ):void
@@ -79,8 +89,13 @@ package com.morepaul.tacobell.display
 			m_media = m;
 		}
 
+		public function resize():void
+		{
+			draw(m_players);
+		}
 
-		public function positionElements():void
+
+		private function drawBackground():void
 		{
 			m_background.graphics.lineStyle();
 			m_background.graphics.beginFill(BG_COLOR);
@@ -93,9 +108,16 @@ package com.morepaul.tacobell.display
 			this.width = width_sandbox;
 			this.height = height_sandbox;
 
-			m_table_debug.x = (width / 2) - (m_table_debug.width / 2);
-			m_table_debug.y = 0;
-			addChild(m_table_debug);
+			m_placeholder.x = (width / 2) - (m_placeholder.width / 2);
+			m_placeholder.y = 0;
+			safelyAddToStage(m_placeholder);
+		}
+
+
+		public function display( players : Array ):void
+		{
+			m_players = players;
+			draw(players);
 		}
 
 
@@ -104,9 +126,9 @@ package com.morepaul.tacobell.display
 		 * player-specific data of a match. Sc2Gears only really gives us
 		 * apm, race, and usually league.  Maybe we can include portraits?
 		 */
-		public function display( players : Array ):void
+		private function draw( players : Array ):void
 		{
-			positionElements();
+			this.drawBackground();
 
 			var numCols : Number = players.length;
 			var colWidth : Number = (this.width / numCols);
@@ -133,9 +155,10 @@ package com.morepaul.tacobell.display
 				if ( i != (players.length - 1) )
 				{
 					m_dividers.graphics.moveTo(rightColBoundary, 0);
-					m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR);
+					m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR, 1.0, false, 
+													LineScaleMode.NORMAL, CapsStyle.NONE, JointStyle.MITER);
 					m_dividers.graphics.lineTo(rightColBoundary, this.y + this.height);
-					this.addChild(m_dividers);
+					safelyAddToStage(m_dividers);
 				}
 				var bg_color : uint = thisPlayer.winner ? WINNER_COLOR : BG_COLOR;
 				var colBack : Shape = new Shape();
@@ -143,7 +166,7 @@ package com.morepaul.tacobell.display
 				colBack.graphics.lineStyle();
 				colBack.graphics.beginFill(bg_color);
 				colBack.graphics.drawRect(leftColBoundary,0, rightColBoundary - leftColBoundary, this.height);
-				this.addChild(colBack);
+				safelyAddToStage(colBack);
 
 				var nameStr   : String = thisPlayer.name;
 				var leagueStr : String = thisPlayer.league;
@@ -155,41 +178,20 @@ package com.morepaul.tacobell.display
 				var leagueImg : Bitmap = m_media.league(leagueStr, rank);
 
 				var nameTag : TacoTableNametag = new TacoTableNametag(raceImg, leagueImg, nameTF);
-				addChild(nameTag);
+				safelyAddToStage(nameTag);
 				nameTag.x = xCol2 - (nameTag.width / 2);
 				nameTag.y = yValue - (nameTag.height / 2);
-
-//				addChild(raceImg);
-//				addChild(nameTF);
-//				addChild(leagueImg);
-//
-//				raceImg.width = 20;
-//				raceImg.height = 20;
-//
-//				leagueImg.width = 20;
-//				leagueImg.height = 20;
-//
-//				// place the name row...
-//				raceImg.x   = xCol1 - (raceImg.width / 2);
-//				nameTF.x    = xCol2 - (nameTF.width / 2);
-//				leagueImg.x = xCol3 - (raceImg.width / 2 );
-//
-//				raceImg.y   = yValue;
-//				nameTF.y    = yValue;
-//				leagueImg.y = yValue;
-
 
 				yValue += Y_INCREMENT;
 
 				// Place the APM -- 
 				var apmStr : String = thisPlayer.apm.toString();
-
 				var apmTF : TextField = createPrettyTextField(apmStr);
 
 				apmTF.x = xCol2 - (apmTF.width / 2);
 				apmTF.y = yValue;
 
-				addChild(apmTF);
+				safelyAddToStage(apmTF);
 
 				leftColBoundary += colWidth;
 				rightColBoundary += colWidth;
@@ -199,9 +201,10 @@ package com.morepaul.tacobell.display
 			// Draw the divider between the player names and APM
 			var yStop : Number = Y_START + (Y_INCREMENT - Y_START);
 			m_dividers.graphics.moveTo(0,yStop);
-			m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR);
+			m_dividers.graphics.lineStyle(DIVIDER_THICKNESS, DIVIDER_COLOR, 1.0, false, 
+											LineScaleMode.NORMAL, CapsStyle.NONE, JointStyle.MITER);
 			m_dividers.graphics.lineTo(this.x + this.width, yStop);
-			this.addChild(m_dividers);
+			safelyAddToStage(m_dividers);
 
 			// APM Label
 
@@ -210,7 +213,7 @@ package com.morepaul.tacobell.display
 			var yVal : Number = Y_START + Y_INCREMENT;
 			apmLabelTF.x = xVal;
 			apmLabelTF.y = yVal;
-			addChild(apmLabelTF);
+			safelyAddToStage(apmLabelTF);
 		}
 
 
@@ -231,6 +234,20 @@ package com.morepaul.tacobell.display
 		}
 
 		/**
+		 * ANTIPATTERN FLASH Y U NO PRESERVE WIDTH + HEIGHT WHEN ADDING?!?!?
+		 */
+		private function safelyAddToStage( d:DisplayObject ):void
+		{
+			var width_sandbox : Number = this.width;
+			var height_sandbox : Number = this.height;
+
+			this.addChild(d);
+
+			this.width = width_sandbox;
+			this.height = height_sandbox;
+		}
+
+		/**
 		 * Clears the table of any data, separators, etc. To be done before we load
 		 * replays...
 		 */
@@ -240,6 +257,9 @@ package com.morepaul.tacobell.display
 			{
 				removeChildAt(0);
 			}
+			// the old ones would still be drawn...
+			m_dividers = new Shape();
+			safelyAddToStage(m_placeholder);
 		}
 	}
 }

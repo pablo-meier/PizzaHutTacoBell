@@ -125,11 +125,13 @@ package com.morepaul.tacobell
 			m_bg.graphics.endFill();
 			this.addChild(m_bg);
 
-			this.clear();
+			this.clearComponents();
 			setHeightsAndWidths();
 
+			m_table.resize();
 			m_placard.resize();
 			this.addChild(m_debug);
+
 		}
 
 
@@ -156,9 +158,9 @@ package com.morepaul.tacobell
 			m_placard.display(data.match);
 		}
 
-		public function clear():void
+		public function clearComponents():void
 		{
-//			m_table.clear();
+			m_table.clear();
 			m_placard.clear();
 		}
 
