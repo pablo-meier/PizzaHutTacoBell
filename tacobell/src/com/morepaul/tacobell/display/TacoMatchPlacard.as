@@ -43,9 +43,20 @@ package com.morepaul.tacobell.display
 
 		private var m_placeHolder : TextField;
 
+		/** Tweak prettiness/layout settings here. */
+		private static const BORDER_SIZE : Number = 5;
+		private static const BG_COLOR : uint = 0x222222;
+		private static const TEXT_COLOR : uint = 0x6BF8FF;
+
+
 		/** Duplicated from TacoPlayerTable, though both containers have their own 
 		 * in case we'd like to style them differently. */
 		private var m_prettyFormat : TextFormat;
+
+
+		/** We cache these values in case of a resize event. */
+		private var m_mapName : String;
+		private var m_time : String;
 
 		public function TacoMatchPlacard( main : TacoBellPluginMain ):void
 		{
@@ -60,11 +71,14 @@ package com.morepaul.tacobell.display
 			this.addChild(m_placeHolder);
 
 			m_prettyFormat = new TextFormat();
-			m_prettyFormat.align = TextFormatAlign.RIGHT;
+			m_prettyFormat.align = TextFormatAlign.CENTER;
 			m_prettyFormat.bold = true;
-			m_prettyFormat.color = 0x6BF8FF;
+			m_prettyFormat.color = TEXT_COLOR;
 			m_prettyFormat.font = "Arial";
 			m_prettyFormat.size = 24;
+
+			m_mapName = "";
+			m_time = "";
 
 			addEventListener(Event.ADDED_TO_STAGE, addedListener);
 		}
@@ -77,8 +91,101 @@ package com.morepaul.tacobell.display
 
 		private function addedListener(e:Event):void
 		{
+			drawBackground();
+			m_placeHolder.x = (this.width / 2) - (m_placeHolder.width / 2);
+			m_placeHolder.y = (this.height / 2) - (m_placeHolder.height / 2);
+		}
+
+		public function resize():void
+		{
+			draw(m_mapName, m_time);
+		}
+
+		public function display( matchData : TacoMatch ):void
+		{
+			var mapName : String = matchData.map;
+			var time : String = matchData.time;
+
+			m_mapName = mapName;
+			m_time = time;
+			draw(mapName, time);
+		}
+
+
+		/**
+		 * The primary functionality -- we render the MatchPlacard to render 
+		 * matches with the following name and time.
+		 */
+		private function draw( mapName : String, time : String ):void
+		{
+			drawBackground();
+
+			// HACKHACKHACKHACK
+			m_placeHolder.text = "";
+
+			var mapImg : Bitmap = m_media.map(mapName);
+			this.scaleOnY(mapImg);
+			mapImg.x = BORDER_SIZE;
+			mapImg.y = BORDER_SIZE;
+
+			this.addToStage(mapImg);
+
+			var midPointX : Number = (((this.width - BORDER_SIZE) - mapImg.width) / 2) + mapImg.width + BORDER_SIZE;
+			var quartilePointY : Number = (this.height - (2 * BORDER_SIZE)) / 4;
+			var leftWall : Number = mapImg.width + BORDER_SIZE;
+
+			var mapTF : TextField = makePrettyTextField(mapName);
+			resizeTextField(mapTF, midPointX, leftWall);
+			mapTF.x = midPointX - (mapTF.width / 2);
+			mapTF.y = (3 * quartilePointY) - (mapTF.height / 2);
+
+			this.addToStage(mapTF);
+
+			var timeTF : TextField = makePrettyTextField(time);
+			resizeTextField(timeTF, midPointX, leftWall);
+			timeTF.x = midPointX - (timeTF.width / 2);
+			timeTF.y = quartilePointY - (mapTF.height / 2);
+
+			this.addToStage(timeTF);
+		}
+
+
+		// We want the textfields to be as large as possible without overlapping the 
+		// map graphic, or running off the side.  We optimitically make it big enough 
+		// for half the height, then shrink it until it fits the width;
+		private function resizeTextField( tf : TextField, midpoint : Number, leftWall : Number ):void
+		{
+			var optimistic : Number = ((this.height - (2 * BORDER_SIZE)) / 2) - 6;
+			m_prettyFormat.size = optimistic;
+			tf.setTextFormat(m_prettyFormat);
+
+			while (midpoint - (tf.width / 2) < leftWall)
+			{
+				optimistic -= 4;
+				m_prettyFormat.size = optimistic;
+				tf.setTextFormat(m_prettyFormat);
+			}
+		}
+
+
+		// WHAT THE FUCK IS THIS BROKEN FUCKING SEMANTIC MODEL THAT I HAVE 
+		// TO DO THIS ANTIPATTERN!?!?!?
+		//
+		// If I don't do this, adding shit to the stage makes this Sprite think
+		// it has a GIANT width.
+		private function addToStage( d : DisplayObject ):void
+		{
+			var heightSandbox : Number = this.height;
+			var widthSandbox : Number = this.width;
+			this.addChild(d);
+			this.height = heightSandbox;
+			this.width = widthSandbox;
+		}
+
+		private function drawBackground():void
+		{
 			m_background.graphics.lineStyle();
-			m_background.graphics.beginFill(0x222222);
+			m_background.graphics.beginFill(BG_COLOR);
 
 			var widthSandbox : Number = this.width;
 			var heightSandbox : Number = this.height;
@@ -88,37 +195,7 @@ package com.morepaul.tacobell.display
 			this.width = widthSandbox;
 			this.height = heightSandbox;
 
-			m_placeHolder.x = (this.width / 2) - (m_placeHolder.width / 2);
-			m_placeHolder.y = (this.height / 2) - (m_placeHolder.height / 2);
-		}
-
-
-		/**
-		 * The primary functionality -- we render the MatchPlacard to render 
-		 * matches with the following name and time.
-		 */
-		public function display( matchData : TacoMatch ):void
-		{
-			// HACKHACKHACKHACK
-			m_placeHolder.text = "";
-			this.addChild(m_placeHolder);
-
-			var mapName : String = matchData.map;
-			var mapImg : Bitmap = m_media.map(mapName);
-			this.scaleOnY(mapImg);
-			mapImg.x = 5;
-			mapImg.y = 5;
-			this.addChild(mapImg);
-
-			var mapTF : TextField = makePrettyTextField(mapName);
-			mapTF.x = this.width - (mapTF.width + 5);
-			mapTF.y = this.height - (mapTF.height + 5);
-			this.addChild(mapTF);
-
-			var timeTF : TextField = makePrettyTextField(matchData.time);
-			timeTF.x = this.width - (timeTF.width + 5);
-			timeTF.y = 5;
-			this.addChild(timeTF);
+			this.addToStage(m_background);
 		}
 
 		private function makePrettyTextField( str : String ):TextField
@@ -131,17 +208,32 @@ package com.morepaul.tacobell.display
 			return tf;
 		}
 
+
 		/**
 		 * Scales the map graphic to fit the constraint of this container's
-		 * y value.
+		 * y value. Stretches in the x-direction arbitrarily.
 		 */
 		private function scaleOnY( img : Bitmap ):void
 		{
-			var targetHeight : Number = this.height - 10;
+			var targetHeight : Number = this.height - (2 * BORDER_SIZE);
 			var scaleValue : Number = targetHeight / img.height;
 
 			img.width  *= scaleValue;
 			img.height *= scaleValue;
+		}
+
+
+		/**
+		 * We add the dummy child at the end, to prevent the runtime from zero-ing out the
+		 * width and height.
+		 */
+		public function clear():void
+		{
+			while (this.numChildren > 0)
+			{
+				this.removeChildAt(0);
+			}
+			this.addChild(m_placeHolder);
 		}
 	}
 }

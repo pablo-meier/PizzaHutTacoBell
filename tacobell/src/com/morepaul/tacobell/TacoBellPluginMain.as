@@ -85,62 +85,81 @@ package com.morepaul.tacobell
 			m_media = new TacoMediaManager();
 
 			addEventListener(Event.ADDED_TO_STAGE, addedToStageListener);
+			stage.addEventListener(Event.RESIZE, resizeListener);
 		} 
 
 		private function addedToStageListener(e:Event):void
 		{
 			debug("Added to stage!");
+			
+			stage.align = StageAlign.TOP_LEFT;
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+
 			m_debug.x = (stage.stageWidth / 2) - (m_debug.width / 2);
 			m_debug.y = (stage.stageHeight / 2) - (m_debug.height / 2);
 
-			m_bg.graphics.lineStyle();
-			m_bg.graphics.beginFill(0x999999);
-			m_bg.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
-			m_bg.graphics.endFill();
-			this.addChild(m_bg);
-
-
 			m_table = new TacoPlayerTable(this);
 			m_table.media = m_media;
-			m_table.x = 5;
-			m_table.y = 5;
-			m_table.width = stage.stageWidth - 10;
-			m_table.height = (stage.stageHeight * (3 / 4)) - 5;
-			this.addChild(m_table);
 
 			m_placard = new TacoMatchPlacard(this);
 			m_placard.media = m_media;
-			m_placard.x = 5;
-			m_placard.y = 5 + m_table.height;
-			m_placard.width = stage.stageWidth - 10;
-			m_placard.height= (stage.stageHeight * (1 / 4)) - 5;
-			this.addChild(m_placard);
 
 //			m_curtain = new TacoCurtain(this);
-//			m_curtain.x = 0;
-//			m_curtain.y = 0;
-//			m_curtain.width = stage.stageWidth;
-//			m_curtain.height = stage.stageHeight;
-//			this.addChild(m_curtain);
+
+			setHeightsAndWidths();
 
 			addChild(m_debug);
 			m_socket.connect("localhost", PORT); 
 			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
 		}
 
+		
+		// Re-draws the Plugin's components so they scale nicely.
+		private function resizeListener(e:Event):void
+		{
+			m_debug.text = "";
+			debug("Resize called! Width is now " + stage.stageWidth +", height = " + stage.stageHeight);
+			m_bg.graphics.lineStyle();
+			m_bg.graphics.beginFill(0x999999);
+			m_bg.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
+			m_bg.graphics.endFill();
+			this.addChild(m_bg);
+
+			this.clear();
+			setHeightsAndWidths();
+
+			m_placard.resize();
+			this.addChild(m_debug);
+		}
+
+
+		private function setHeightsAndWidths():void
+		{
+			m_table.x = 5;
+			m_table.y = 5;
+			m_table.width = stage.stageWidth - 10;
+			m_table.height = (stage.stageHeight * (1 / 2)) - 5;
+			this.addChild(m_table);
+
+			m_placard.x = 5;
+			m_placard.y = 5 + m_table.height;
+			m_placard.width = stage.stageWidth - 10;
+			m_placard.height= (stage.stageHeight * (1 / 2)) - 5;
+			m_placard.resize();
+			this.addChild(m_placard);
+		}
 
 		// Should do this with events...
 		public function render( data : TacoReplayInfo ):void
 		{
-//			m_animation.play(data);
-//			m_curtain.display();
 			m_table.display(data.players);
 			m_placard.display(data.match);
 		}
 
 		public function clear():void
 		{
-			m_table.clear();
+//			m_table.clear();
+			m_placard.clear();
 		}
 
 		/**
