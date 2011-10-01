@@ -12,9 +12,9 @@
   <target name="all" depends="prepare">
     <ant dir="pizzahut" />
     <ant dir="tacobell" />
-    <move file="pizzahut/${jarname}" todir="${build}" />
-    <move file="pizzahut/${plugin_xml}" todir="${build}" />
-    <move file="tacobell/${swfname}" todir="${build}" />
+    <copy file="pizzahut/${jarname}" todir="${build}" />
+    <copy file="pizzahut/${plugin_xml}" todir="${build}" />
+    <copy file="tacobell/${swfname}" todir="${build}" />
   </target>
 
   <target name="prepare">
@@ -22,8 +22,8 @@
   </target>
 
   <target name="clean">
-    <delete dir="${build}" />
     <ant dir="pizzahut" target="clean" />
     <ant dir="tacobell" target="clean" />
+    <delete dir="${build}" />
   </target>
 </project>

@@ -4,27 +4,27 @@
 <project name="PizzaHut" default="jar" basedir=".">
 
   <property name="src" location="src" />
-  <property name="build" location="build" />
+  <property name="java_build" location="build" />
   <property name="lib" location="lib" />
 
   <property name="jarname" value="PIZZAHUT.jar" />
 
   <target name="jar" depends="compile">
-    <jar destfile="${jarname}" basedir="${build}" />
+    <jar destfile="${jarname}" basedir="${java_build}" />
   </target>
 
   <target name="compile" depends="prepare">
     <javac srcdir="${src}" 
            classpath="${lib}/Sc2gears-plugin-api-2.3.jar"
-           destdir="${build}" />
+           destdir="${java_build}" />
   </target>
 
   <target name="prepare">
-    <mkdir dir="${build}" />
+    <mkdir dir="${java_build}" />
   </target>
 
   <target name="clean">
-    <delete dir="${build}" />
+    <delete dir="${java_build}" />
     <delete file="${jarname}" />
   </target>
 </project>
