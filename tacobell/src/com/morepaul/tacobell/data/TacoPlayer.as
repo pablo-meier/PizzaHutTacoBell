@@ -28,6 +28,9 @@ package com.morepaul.tacobell.data
 	 */
 	public class TacoPlayer
 	{
+
+		public static const UNKNOWN_RANK : uint = 8888;
+
 		public function TacoPlayer():void { super(); }
 
 		// How many rows will you need to display this content?

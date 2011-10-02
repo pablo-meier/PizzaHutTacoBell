@@ -12,9 +12,9 @@
   <target name="all" depends="prepare">
     <ant dir="pizzahut" />
     <ant dir="tacobell" />
-    <copy file="pizzahut/${jarname}" todir="${build}" />
-    <copy file="pizzahut/${plugin_xml}" todir="${build}" />
-    <copy file="tacobell/${swfname}" todir="${build}" />
+    <copy file="pizzahut/${jarname}" todir="${build}" overwrite="true" />
+    <copy file="pizzahut/${plugin_xml}" todir="${build}" overwrite="true" />
+    <copy file="tacobell/${swfname}" todir="${build}" overwrite="true" />
   </target>
 
   <target name="prepare">

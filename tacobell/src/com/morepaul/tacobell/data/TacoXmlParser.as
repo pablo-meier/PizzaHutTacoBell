@@ -46,7 +46,12 @@ package com.morepaul.tacobell.data
 				var leagueStr : String = this_player.league.text();
 				var raceStr : String = this_player.race.text();
 
-				var rank : uint = Number(this_player.rank.text());
+				var rank : uint = TacoPlayer.UNKNOWN_RANK;
+				var rankStr : String = this_player.rank.text();
+				if ( rankStr != "UNKNOWN" )
+				{
+					rank = Number(rankStr);	
+				}
 				var apm : uint = Number(this_player.apm.text());
 
 				// Really AS3?  Boolean("false") == true?

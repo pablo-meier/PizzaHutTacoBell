@@ -30,7 +30,7 @@ import hu.belicza.andras.sc2gearspluginapi.impl.*;
 
 import java.io.*;
 import java.util.*;
-
+import java.util.regex.*;
 
 public class PizzaHutNewReplayListener implements NewReplayListener
 {
@@ -41,6 +41,7 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 	private ReplayUtilsApi m_replayUtils;
 	private ProfileApi m_profileApi;
 	private GeneralServices m_generalServices;
+	private Pattern m_winnerSplitterPattern;
 
 
 	public PizzaHutNewReplayListener(PizzaHutPluginMain main,
@@ -53,6 +54,8 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 		m_replayUtils = replayUtils;
 		m_profileApi = profileApi;
 		m_generalServices = generalServices;
+
+		m_winnerSplitterPattern = Pattern.compile("([^,]+)");
 	}
 
 	@Override
@@ -71,6 +74,10 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 
 		IPlayer[] players = replay.getPlayers();
 
+		String winners = replay.getWinnerNames();
+		Matcher winMatcher = m_winnerSplitterPattern.matcher(winners);
+		winMatcher.matches();
+
 		// Search for profiles!
 		for (int i = 0; i < players.length; ++i)
 		{
@@ -86,16 +93,25 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 
 		for (int i = 0; i < numPlayers; ++i)
 		{
+			String playerName = players[i].getPlayerId().getName();
+
 			HashMap<PlayerAttribute, String> thisSet = new HashMap<PlayerAttribute, String>();
-			thisSet.put(PlayerAttribute.NAME, players[i].getPlayerId().getName());
+			thisSet.put(PlayerAttribute.NAME, playerName);
 			thisSet.put(PlayerAttribute.RACE, players[i].getRaceString());
 
 			int apm = m_replayUtils.calculatePlayerApm(replay, players[i]);
 			thisSet.put(PlayerAttribute.APM, Integer.toString(apm));
 			thisSet.put(PlayerAttribute.LEAGUE, "UNKNOWN");
 			thisSet.put(PlayerAttribute.RANK, "UNKNOWN");
+			thisSet.put(PlayerAttribute.WINNER, "false");
 
-			thisSet.put(PlayerAttribute.WINNER, Boolean.toString(false));
+			for ( int p = 1; p <= winMatcher.groupCount(); ++p)
+			{
+				if ( playerName.equals(winMatcher.group(p)) )
+				{
+					thisSet.put(PlayerAttribute.WINNER, "true");
+				}
+			}
 
 			playerInfo.add(i, thisSet);
 		}

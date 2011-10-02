@@ -53,7 +53,7 @@ public class PizzaHutPluginMain extends BasePlugin
 
 	/** Number of milliseconds we wait until sending the data
 	    without a league. */
-	private static final long PROFILE_WAIT_TIMEOUT = 15000;
+	private static final long PROFILE_WAIT_TIMEOUT = 6500;
 
 	/** When we requested the profiles. Used to calculate timeouts. */
 	private long m_profileQueryTime;
@@ -140,6 +140,7 @@ public class PizzaHutPluginMain extends BasePlugin
 	 */
 	public void setSocket(Socket out)
 	{
+		System.out.println("Socket set!");
 		m_tacoBell = out;
 	}
 
@@ -200,9 +201,13 @@ public class PizzaHutPluginMain extends BasePlugin
 				Element apmElem = doc.createElement("apm");
 				apmElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.APM)));
 
+				Element winnerElem = doc.createElement("winner");
+				winnerElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.WINNER)));
+
 				playerElem.appendChild(nameElem);
 				playerElem.appendChild(raceElem);
 				playerElem.appendChild(apmElem);
+				playerElem.appendChild(winnerElem);
 
 				// This next bit of douchery is safeguarding against the asynchronousness of 
 				// profile fetching. Top-level while assures we stop after a timeout period.

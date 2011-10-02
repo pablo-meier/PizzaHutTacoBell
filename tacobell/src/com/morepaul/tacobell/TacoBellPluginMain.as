@@ -107,13 +107,11 @@ package com.morepaul.tacobell
 			m_placard = new TacoMatchPlacard(this);
 			m_placard.media = m_media;
 
-//			m_curtain = new TacoCurtain(this);
-
 			setHeightsAndWidths();
 
 			addChild(m_debug);
 			m_socket.connect("localhost", PORT); 
-			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
+//			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
 		}
 
 		

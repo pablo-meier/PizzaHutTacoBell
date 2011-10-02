@@ -24,7 +24,8 @@ package com.morepaul.tacobell.display
 {
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
-//	import mx.core.BitmapAsset;
+
+	import com.morepaul.tacobell.data.TacoPlayer;
 
 	/**
 	 * Our renderer was doing a lot of grunt work that was bloating the
@@ -42,6 +43,7 @@ package com.morepaul.tacobell.display
 		private var m_diamond     : TacoLeague;
 		private var m_master      : TacoLeague;
 		private var m_grandmaster : TacoLeague;
+		private var m_unknownLeague : BitmapData;
 
 		private var m_terran  : TacoRace;
 		private var m_zerg    : TacoRace;
@@ -111,12 +113,29 @@ package com.morepaul.tacobell.display
 				case "DIAMOND"     : league = this.diamond;      break;
 				case "MASTER"      : league = this.master;       break;
 				case "GRANDMASTER" : league = this.grandmaster;  break;
+				case "UNKNOWN"     : return new Bitmap(m_unknownLeague);
 			}
 
-			if      (rankInt > 50) { icon = league.standard }
-			else if (rankInt > 25) { icon = league.top50    }
-			else if (rankInt >  8) { icon = league.top25    }
-			else                   { icon = league.top8     }
+			if      (rankInt > 50) 
+			{ 
+				icon = league.standard;
+			}
+			else if (rankInt > 25) 
+			{
+				icon = league.top50;
+			}
+			else if (rankInt >  8) 
+			{
+				icon = league.top25;
+			}
+			else if (rankInt == TacoPlayer.UNKNOWN_RANK)
+			{
+				icon = m_unknownLeague;
+			}
+			else
+			{ 
+				icon = league.top8;
+			}
 
 			return new Bitmap(icon);
 		}
@@ -128,9 +147,9 @@ package com.morepaul.tacobell.display
 			switch (name)
 			{
 				case "Shakuras Plateau"     : img = m_shakuras; break;
-				case "Antiga Shipyard "     : img = m_antiga; break;
+				case "Antiga Shipyard"     : img = m_antiga; break;
 				case "Xel'Naga Caverns"     : img = m_xelnaga; break;
-				case "Tal'Darim Altar LE"   : img = m_taldarim; break;
+				case "Tal'darim Altar LE"   : img = m_taldarim; break;
 				case "Backwater Gulch"      : img = m_backwater; break;
 				case "Searing Crater"       : img = m_searing; break;
 				case "The Shattered Temple" : img = m_shattered; break;
@@ -199,6 +218,8 @@ package com.morepaul.tacobell.display
 			var gmt25 : BitmapData = new GrandmasterTopTwentyFiveIcon().bitmapData;
 			var gmt8  : BitmapData = new GrandmasterTopEightIcon().bitmapData;
 			m_grandmaster = new TacoLeague("grandmaster", gmStd, gmt50, gmt25, gmt8);
+
+			m_unknownLeague = new UnknownLeague().bitmapData;
 
 			m_shakuras = new ShakurasPlateau().bitmapData;
 			m_antiga = new AntigaShipyard().bitmapData;
@@ -285,6 +306,9 @@ package com.morepaul.tacobell.display
 		private var GrandmasterTopTwentyFiveIcon : Class;
 		[Embed(source="../../../../../assets/leagues/grandmaster/top8.png")]
 		private var GrandmasterTopEightIcon : Class;
+
+		[Embed(source="../../../../../assets/leagues/unknown.png")]
+		private var UnknownLeague: Class;
 
 
 		// MAPS -- 1v1
