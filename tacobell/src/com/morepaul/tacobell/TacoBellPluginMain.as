@@ -24,6 +24,8 @@ package com.morepaul.tacobell
 {
 	import flash.display.*;
 	import flash.events.*;
+	import flash.external.*;
+	import flash.net.*;
 	import flash.text.*;
 
 	import com.morepaul.tacobell.display.*;
@@ -60,6 +62,8 @@ package com.morepaul.tacobell
 		private var m_table: TacoPlayerTable;
 		private var m_curtain: TacoCurtain;
 
+		private var m_localConn : LocalConnection;
+
 
 		private var m_debug : TextField;
 		private var m_bg : Shape;
@@ -70,7 +74,19 @@ package com.morepaul.tacobell
 		public function TacoBellPluginMain():void
 		{
 			super();
+			if (stage != null)
+			{
+				addedToStageListener();
+			}
+			else
+			{
+				addEventListener(Event.ADDED_TO_STAGE, addedToStageListener);
+			}
+		}
 
+
+		private function addedToStageListener(e:Event = null):void
+		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 
 			m_xmlParser = new TacoXmlParser();
@@ -86,13 +102,15 @@ package com.morepaul.tacobell
 			m_bg = new Shape();
 			m_media = new TacoMediaManager();
 
-			addEventListener(Event.ADDED_TO_STAGE, addedToStageListener);
 			stage.addEventListener(Event.RESIZE, resizeListener);
-		} 
 
-		private function addedToStageListener(e:Event):void
-		{
-			debug("Added to stage!");
+			if (ExternalInterface.available)
+			{
+				// For XSplit Broadcaster...
+				ExternalInterface.addCallback("SetConfiguration", setConfiguration)
+				// To set up the right LC with the Config SWF
+				ExternalInterface.addCallback("SetConnectionChannel", createLocalConnection)
+			}
 			
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -177,6 +195,27 @@ package com.morepaul.tacobell
 		public function debug(msg : String):void
 		{
 			m_debug.appendText('\n' + msg);
+		}
+
+
+		//////////////////////////////////////////////////////////////////// 
+		// XSPLIT BIDDNESS
+		//////////////////////////////////////////////////////////////////// 
+
+		public function setConfiguration( config : String ):void
+		{
+			// Do nothing, methinks. Good place to redraw?
+			debug("Called setConfiguration! config string is " + config);
+		}
+
+		private function createLocalConnection( lid : String ):String
+		{
+			m_localConn = new LocalConnection();
+			try {
+				m_localConn.connect(lid);
+				m_localConn.client = this;
+			} catch (e : ArgumentError) {}
+			return "";
 		}
 	}
 }

@@ -5,8 +5,12 @@
 
   <property name="src" location="src" />
   <property name="lib" location="libs" />
-  <property name="config" location="config.xml" />
-  <property name="swfname" location="TACOBELL.swf" />
+
+  <property name="base_config" location="base_config.xml" />
+  <property name="config_config" location="config_config.xml" />
+
+  <property name="baseswf" location="TACOBELL.swf" />
+  <property name="configswf" location="TACOBELL_config.swf" />
 
   <property name="package-path" value="${src}/com/morepaul/tacobell" />
 
@@ -26,14 +30,19 @@
   </target>
 
   <target name="clean">
-    <delete file="${swfname}" />
+    <delete file="${baseswf}" />
+    <delete file="${configswf}" />
   </target>
 
   <!-- Now, THE MEAT! -->
   <target name="compile" depends="flexinit">
     <mxmlc file="${package-path}/TacoBellPluginMain.as"
            actionscript-file-encoding="UTF-8"> 
-      <load-config filename="${config}" />
+      <load-config filename="${base_config}" />
+    </mxmlc>
+    <mxmlc file="${package-path}/config/TacoBellConfiguration.as"
+           actionscript-file-encoding="UTF-8"> 
+      <load-config filename="${config_config}" />
     </mxmlc>
   </target>
 </project>

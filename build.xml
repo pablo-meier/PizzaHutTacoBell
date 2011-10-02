@@ -5,20 +5,24 @@
 
   <property name="jarname" value="PIZZAHUT.jar" />
   <property name="plugin_xml" value="Sc2Gears-plugin.xml" />
-  <property name="swfname" value="TACOBELL.swf" />
+  <property name="base_swfname" value="TACOBELL.swf" />
+  <property name="config_swfname" value="TACOBELL_config.swf" />
 
   <property name="build" value="COMBINATION_PIZZAHUT_AND_TACOBELL" />
 
   <target name="all" depends="prepare">
     <ant dir="pizzahut" />
     <ant dir="tacobell" />
-    <copy file="pizzahut/${jarname}" todir="${build}" overwrite="true" />
-    <copy file="pizzahut/${plugin_xml}" todir="${build}" overwrite="true" />
-    <copy file="tacobell/${swfname}" todir="${build}" overwrite="true" />
+    <copy file="pizzahut/${jarname}" todir="${build}/PIZZAHUT" overwrite="true" />
+    <copy file="pizzahut/${plugin_xml}" todir="${build}/PIZZAHUT" overwrite="true" />
+    <copy file="tacobell/${base_swfname}" todir="${build}/TACOBELL" overwrite="true" />
+    <copy file="tacobell/${config_swfname}" todir="${build}/TACOBELL" overwrite="true" />
   </target>
 
   <target name="prepare">
     <mkdir dir="${build}" />
+    <mkdir dir="${build}/PIZZAHUT" />
+    <mkdir dir="${build}/TACOBELL" />
   </target>
 
   <target name="clean">
