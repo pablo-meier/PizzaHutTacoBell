@@ -43,6 +43,15 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 	private GeneralServices m_generalServices;
 	private Pattern m_winnerSplitterPattern;
 
+	/** Number of milliseconds we wait until sending the data
+	    without a league. */
+	private static final long PROFILE_WAIT_TIMEOUT = 6500;
+
+
+	/** Hold the data of the parsed replay so we can receive async calls to 
+	 * fire at any moment.*/
+	private HashMap<MatchAttribute,String> m_matchInfo;
+	private ArrayList<HashMap<PlayerAttribute, String>> m_playerInfo;
 
 	public PizzaHutNewReplayListener(PizzaHutPluginMain main,
 									ReplayUtilsApi replayUtils,
@@ -56,6 +65,9 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 		m_generalServices = generalServices;
 
 		m_winnerSplitterPattern = Pattern.compile("([^,]+)");
+
+		m_matchInfo = new HashMap<MatchAttribute,String>();
+		m_playerInfo = new ArrayList<HashMap<PlayerAttribute,String>>();
 	}
 
 	@Override
@@ -63,6 +75,8 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 
 		// Start with a clean slate.
 		m_main.clearProfiles();
+		m_matchInfo.clear();
+		m_playerInfo.clear();
 
 		// Cached info is enough for us: we acquire replay with ReplayFactory.getReplay()
 		final IReplay replay = m_generalServices.getReplayFactoryApi().getReplay( replayFile.getAbsolutePath(), null );
@@ -83,13 +97,12 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 		{
 			final IPlayerId id = players[i].getPlayerId();
 			final String name = id.getName();
-			m_profileApi.queryProfile(id, new PizzaHutProfileGetter(m_main, name), false, false);
+			m_profileApi.queryProfile(id, new PizzaHutProfileGetter(m_main, this, name), false, false);
 		}
 
-		m_main.setTimeoutStart(System.currentTimeMillis());
 		int numPlayers = players.length;
 
-		ArrayList<HashMap<PlayerAttribute, String>> playerInfo = new ArrayList<HashMap<PlayerAttribute,String>>(numPlayers);
+		m_playerInfo.ensureCapacity(numPlayers);
 
 		for (int i = 0; i < numPlayers; ++i)
 		{
@@ -113,10 +126,9 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 				}
 			}
 
-			playerInfo.add(i, thisSet);
+			m_playerInfo.add(i, thisSet);
 		}
 
-		HashMap<MatchAttribute,String> matchInfo = new HashMap<MatchAttribute,String>();
 
 		int gameLength = replay.getGameLengthSec();
 		double minutes = gameLength / 60;
@@ -125,12 +137,25 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 		if (seconds.length() == 1)
 			seconds = "0" + seconds;
 
-		matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + seconds);
-		matchInfo.put(MatchAttribute.MAP, replay.getMapName());
-		matchInfo.put(MatchAttribute.LOSER_GG, "true");
+		m_matchInfo.put(MatchAttribute.TIME, Integer.toString(wholeMinutes) + ":" + seconds);
+		m_matchInfo.put(MatchAttribute.MAP, replay.getMapName());
+		m_matchInfo.put(MatchAttribute.LOSER_GG, "true");
 
 		System.out.println("[PIZZAHUT] Filled Hashes, now to XML!");
-		m_main.printXmlFile(playerInfo, matchInfo);
-		System.out.println("[PIZZAHUT] I'M AT THE PIZZA HUT!");
+		
+		// Set a timer to enforce the timeout.
+		ProfileFetchTimeout timeoutTask = new ProfileFetchTimeout(m_main, m_playerInfo, m_matchInfo);
+		Timer timeoutTimer = new Timer();
+		timeoutTimer.schedule(timeoutTask, PROFILE_WAIT_TIMEOUT);
+	}
+
+
+	// Calls the main plugin to send the completed data. This is called by our profile fetching callback,
+	// and only after all the profiles have been received. If this is called after the timeout period,
+	// it's ignored.
+	public void sendData()
+	{
+		if (m_main.stillBeforeCallback())
+			m_main.printXmlFile(m_playerInfo, m_matchInfo);
 	}
 } 

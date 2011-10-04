@@ -38,16 +38,28 @@ public class PizzaHutProfileGetter implements ProfileListener
 	/** The player's name (who we are fetching) */
 	private String m_playerName;
 
-	public PizzaHutProfileGetter(PizzaHutPluginMain plugin, String name)
+	private PizzaHutNewReplayListener m_parent;
+
+	public PizzaHutProfileGetter(PizzaHutPluginMain plugin, PizzaHutNewReplayListener parent, String name)
 	{
 		m_plugin = plugin;
+		m_parent = parent;
 		m_playerName = name;
 	}
 
 	@Override
 	public void profileReady(IProfile profile, boolean isAnotherRetrievingInProgress)
 	{
-		if (profile != null)	
+		if (profile != null)
+		{
 			m_plugin.addToProfiles(m_playerName, profile);
+		}
+
+		// Possible race condition ... in _theory_, you could fetch all the profiles and try to call the parent
+		// before the parent is done with the matchInfo, etc.  But let's face it -- this isn't gonna happen.
+		if (!m_plugin.lackingProfiles())
+		{
+			m_parent.sendData();
+		}
 	}
 }

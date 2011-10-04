@@ -51,10 +51,6 @@ import org.w3c.dom.*;
 public class PizzaHutPluginMain extends BasePlugin
 {
 
-	/** Number of milliseconds we wait until sending the data
-	    without a league. */
-	private static final long PROFILE_WAIT_TIMEOUT = 6500;
-
 	/** When we requested the profiles. Used to calculate timeouts. */
 	private long m_profileQueryTime;
 
@@ -73,6 +69,8 @@ public class PizzaHutPluginMain extends BasePlugin
 
 	/** Storage for fetched profiles. */
 	private HashMap<String, IProfile> m_profiles;
+	private int m_profile_count = 0;
+	private boolean m_firedOff = false;
 
 	/** Convert DOM to XML */
 	private Transformer m_transformer;
@@ -123,16 +121,17 @@ public class PizzaHutPluginMain extends BasePlugin
 	public void addToProfiles(String name, IProfile profile)
 	{
 		m_profiles.put(name, profile);
+		++m_profile_count;
 	}
 	
-	private boolean isProfileTimeout()
+	public boolean lackingProfiles()
 	{
-		return (System.currentTimeMillis() - m_profileQueryTime) > PROFILE_WAIT_TIMEOUT;
+		return (m_profiles.size() != m_profile_count) && !m_firedOff;
 	}
 
-	public void setTimeoutStart(long time)
+	public boolean stillBeforeCallback()
 	{
-		m_profileQueryTime = time;
+		return !m_firedOff;
 	}
 
 	/**
@@ -177,7 +176,8 @@ public class PizzaHutPluginMain extends BasePlugin
 	public void printXmlFile(ArrayList<HashMap<PlayerAttribute, String>> players, 
 								HashMap<MatchAttribute,String> match)
 	{
-	  try {
+		m_firedOff = true;
+		try {
 			// root element
 			Document doc = m_docBuilder.newDocument();
 			Element rootElement = doc.createElement("replay");
@@ -209,42 +209,30 @@ public class PizzaHutPluginMain extends BasePlugin
 				playerElem.appendChild(apmElem);
 				playerElem.appendChild(winnerElem);
 
-				// This next bit of douchery is safeguarding against the asynchronousness of 
-				// profile fetching. Top-level while assures we stop after a timeout period.
-				while (!isProfileTimeout())
-				{
-					// If we don't have the profiles, spin.
-					if (m_profiles.size() == players.size())
+				Iterator<String> keys = m_profiles.keySet().iterator();
+				while (keys.hasNext()) {
+					String key = keys.next();
+					if (key.equals(name))
 					{
-						Iterator<String> keys = m_profiles.keySet().iterator();
-						while (keys.hasNext()) {
-							String key = keys.next();
-							if (key.equals(name))
-							{
-								try 
-								{
-									IProfile profile = m_profiles.get(key);
-									System.out.println("Inside! profile==null -> " + (profile == null));
-									String league = profile.getBestRanks()[0].getLeague().toString();
-									player.put(PlayerAttribute.LEAGUE, league);
-									int rank = profile.getBestRanks()[0].getDivisionRank();
-									player.put(PlayerAttribute.RANK, Integer.toString(rank));
-								}
-								// Catch the Null Pointer, since it's not guaranteed all these chains lead to
-								// valid objects!
-								catch (NullPointerException ex)
-								{
-									System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
-									ex.printStackTrace();
-								}
-		
-							}  // is this key match the player we're writing?
-						} // is iterator empty
-						break;
+						try 
+						{
+							IProfile profile = m_profiles.get(key);
+							System.out.println("Inside! profile == null -> " + (profile == null));
+							String league = profile.getBestRanks()[0].getLeague().toString();
+							player.put(PlayerAttribute.LEAGUE, league);
+							int rank = profile.getBestRanks()[0].getDivisionRank();
+							player.put(PlayerAttribute.RANK, Integer.toString(rank));
+						}
+						// Catch the Null Pointer, since it's not guaranteed all these chains lead to
+						// valid objects!
+						catch (NullPointerException ex)
+						{
+							System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
+							ex.printStackTrace();
+						}
 
-					} // to spin or not to spin.
-				} //timeout check
-
+					}  // is this key match the player we're writing?
+				} // is iterator empty
 				Element leagueElem = doc.createElement("league");
 				leagueElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.LEAGUE)));
 				playerElem.appendChild(leagueElem);
@@ -310,5 +298,8 @@ public class PizzaHutPluginMain extends BasePlugin
 		{
 			e.printStackTrace();
 		}
+		m_firedOff = false;
+		m_profile_count = 0;
+		System.out.println("[PIZZAHUT] I'M AT THE PIZZA HUT!");
 	}
 }
