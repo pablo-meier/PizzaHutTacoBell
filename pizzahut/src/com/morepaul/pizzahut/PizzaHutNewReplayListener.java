@@ -101,7 +101,7 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 		}
 
 		int numPlayers = players.length;
-
+		m_main.setProfileCount(numPlayers);
 		m_playerInfo.ensureCapacity(numPlayers);
 
 		for (int i = 0; i < numPlayers; ++i)
@@ -141,10 +141,8 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 		m_matchInfo.put(MatchAttribute.MAP, replay.getMapName());
 		m_matchInfo.put(MatchAttribute.LOSER_GG, "true");
 
-		System.out.println("[PIZZAHUT] Filled Hashes, now to XML!");
-		
 		// Set a timer to enforce the timeout.
-		ProfileFetchTimeout timeoutTask = new ProfileFetchTimeout(m_main, m_playerInfo, m_matchInfo);
+		ProfileFetchTimeout timeoutTask = new ProfileFetchTimeout(this);
 		Timer timeoutTimer = new Timer();
 		timeoutTimer.schedule(timeoutTask, PROFILE_WAIT_TIMEOUT);
 	}
@@ -155,6 +153,7 @@ public class PizzaHutNewReplayListener implements NewReplayListener
 	// it's ignored.
 	public void sendData()
 	{
+		System.out.println("Sending from profile listener!");
 		if (m_main.stillBeforeCallback())
 			m_main.printXmlFile(m_playerInfo, m_matchInfo);
 	}

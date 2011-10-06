@@ -123,10 +123,17 @@ public class PizzaHutPluginMain extends BasePlugin
 		m_profiles.put(name, profile);
 		++m_profile_count;
 	}
+
+	public void setProfileCount(int newCount)
+	{
+		m_profile_count = newCount;
+	}
 	
 	public boolean lackingProfiles()
 	{
-		return (m_profiles.size() != m_profile_count) && !m_firedOff;
+		boolean expr = (m_profiles.size() < m_profile_count);
+		System.out.println("Expr is evaluting to " + expr + ", with hashes at " + m_profiles.size() + " and m_profile_count at " + m_profile_count);
+		return expr;
 	}
 
 	public boolean stillBeforeCallback()
@@ -134,12 +141,11 @@ public class PizzaHutPluginMain extends BasePlugin
 		return !m_firedOff;
 	}
 
-	/**
-	 * Sets the OutputStream we send out New Replay data out of.
-	 */
+
+
 	public void setSocket(Socket out)
 	{
-		System.out.println("Socket set!");
+		System.out.println("[PIZZAHUT] Socket set!");
 		m_tacoBell = out;
 	}
 
@@ -191,55 +197,33 @@ public class PizzaHutPluginMain extends BasePlugin
 
 				Element playerElem = doc.createElement("player");
 
-				Element nameElem = doc.createElement("name");
 				String name = player.get(PlayerAttribute.NAME);
-				nameElem.appendChild(doc.createTextNode(name));
+				addElementTo(doc, "name", name, playerElem);
+				addElementTo(doc, "race", player.get(PlayerAttribute.RACE), playerElem);
+				addElementTo(doc, "apm", player.get(PlayerAttribute.APM), playerElem);
+				addElementTo(doc, "winner", player.get(PlayerAttribute.WINNER), playerElem);
 
-				Element raceElem = doc.createElement("race");
-				raceElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.RACE)));
-
-				Element apmElem = doc.createElement("apm");
-				apmElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.APM)));
-
-				Element winnerElem = doc.createElement("winner");
-				winnerElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.WINNER)));
-
-				playerElem.appendChild(nameElem);
-				playerElem.appendChild(raceElem);
-				playerElem.appendChild(apmElem);
-				playerElem.appendChild(winnerElem);
-
-				Iterator<String> keys = m_profiles.keySet().iterator();
-				while (keys.hasNext()) {
-					String key = keys.next();
-					if (key.equals(name))
+				IProfile profile = m_profiles.get(name);
+				try
+				{
+					if (profile != null)
 					{
-						try 
-						{
-							IProfile profile = m_profiles.get(key);
-							System.out.println("Inside! profile == null -> " + (profile == null));
-							String league = profile.getBestRanks()[0].getLeague().toString();
-							player.put(PlayerAttribute.LEAGUE, league);
-							int rank = profile.getBestRanks()[0].getDivisionRank();
-							player.put(PlayerAttribute.RANK, Integer.toString(rank));
-						}
-						// Catch the Null Pointer, since it's not guaranteed all these chains lead to
-						// valid objects!
-						catch (NullPointerException ex)
-						{
-							System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
-							ex.printStackTrace();
-						}
+						String league = profile.getBestRanks()[0].getLeague().toString();
+						player.put(PlayerAttribute.LEAGUE, league);
+						int rank = profile.getBestRanks()[0].getDivisionRank();
+						player.put(PlayerAttribute.RANK, Integer.toString(rank));
+					}
+				} 
+				// Catch the Null Pointer, since it's not guaranteed all these chains lead to
+				// valid objects!
+				catch (NullPointerException ex)
+				{
+					System.err.println("Failed to retrieve data for " + name + ", better luck next time.");
+					ex.printStackTrace();
+				}
 
-					}  // is this key match the player we're writing?
-				} // is iterator empty
-				Element leagueElem = doc.createElement("league");
-				leagueElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.LEAGUE)));
-				playerElem.appendChild(leagueElem);
-
-				Element rankElem = doc.createElement("rank");
-				rankElem.appendChild(doc.createTextNode(player.get(PlayerAttribute.RANK)));
-				playerElem.appendChild(rankElem);
+				addElementTo(doc, "league", player.get(PlayerAttribute.LEAGUE), playerElem);
+				addElementTo(doc, "rank", player.get(PlayerAttribute.RANK), playerElem);
 
 				playersElement.appendChild(playerElem);
 			}
@@ -248,19 +232,11 @@ public class PizzaHutPluginMain extends BasePlugin
 
 			// time, map, losergg
 			Element mapElem = doc.createElement("map");
-
-			Element mapNameElem = doc.createElement("name");
-			mapNameElem.appendChild(doc.createTextNode(match.get(MatchAttribute.MAP)));
-			mapElem.appendChild(mapNameElem);
+			addElementTo(doc, "name", match.get(MatchAttribute.MAP), mapElem);
 			rootElement.appendChild(mapElem);
 
-			Element timeElem = doc.createElement("time");
-			timeElem.appendChild(doc.createTextNode(match.get(MatchAttribute.TIME)));
-			rootElement.appendChild(timeElem);
-
-			Element loserElem = doc.createElement("loser_gg");
-			loserElem.appendChild(doc.createTextNode(match.get(MatchAttribute.LOSER_GG)));
-			rootElement.appendChild(loserElem);
+			addElementTo(doc, "time", match.get(MatchAttribute.TIME), rootElement);
+			addElementTo(doc, "loser_gg", match.get(MatchAttribute.LOSER_GG), rootElement);
 			
 			// write the content into xml file
 			DOMSource source = new DOMSource(doc);
@@ -278,6 +254,15 @@ public class PizzaHutPluginMain extends BasePlugin
 		}
 	}
 
+
+	private void addElementTo(Document doc, String name, String value, Element parent)
+	{
+			Element newElement = doc.createElement(name);
+			if ( value == null ) value = "EMPTY_NULL_NODE";
+			newElement.appendChild(doc.createTextNode(value));
+			parent.appendChild(newElement);
+	}
+
 	/**
 	 * Informs the client (TACOBELL) how much data to read in the subsequent communication, in
 	 * bytes.
@@ -287,9 +272,7 @@ public class PizzaHutPluginMain extends BasePlugin
 		try
 		{
 			OutputStream out = m_tacoBell.getOutputStream();
-			System.out.println("Got output stream");
 			InputStream in = m_tacoBell.getInputStream();
-			System.out.println("Got input stream");
 
 			StreamResult byteResult = new StreamResult(out);
 			m_transformer.transform(source, byteResult);

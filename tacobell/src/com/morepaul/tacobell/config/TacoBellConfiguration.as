@@ -23,9 +23,16 @@
 package com.morepaul.tacobell.config
 {
 	// XSplit doesn't seem to be loading my SWF, so I'm adding more crap to it.
-	// This is the main class for the accompanying config SWF.
+	// This is the main class for the accompanying config SWF, which currently 
+	// doesn't really configure anything. In time though, I imagine it would be 
+	// nice to have some interface to check socket connectivity, set port number,
+	// alter the color scheme, etc.
+
+	// Until then, I'm just trying to make it minimally compliant so I can get
+	// it running on XSplit.
 
 	import flash.display.*;
+	import flash.events.*;
 	import flash.external.*;
 	import flash.net.*;
 	import flash.text.*;
@@ -39,14 +46,40 @@ package com.morepaul.tacobell.config
 		{
 			super();
 
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
+
+			m_localConn = new LocalConnection();
+			m_localConn.addEventListener(StatusEvent.STATUS, onStatus);
+
+			createExternalCalls()
+
 			var tf : TextField = new TextField();
 			tf.text = "Hello Configuration World!";
 			this.addChild(tf);
-
-			ExternalInterface.addCallback("SetConfiguration", setConfiguration);
-			ExternalInterface.addCallback("SetConnectionChannel", setConnectionChannel);
 		}
 
+
+		private function createExternalCalls():void
+		{
+			if (ExternalInterface.available)
+			{
+				//called by broadcaster and will pass config string 
+				//so that you can show current configuration on the config window
+				ExternalInterface.addCallback("SetConfiguration",setConfiguration);			
+				
+				//called by broadcaster and will pass the LocalConnection id of the base
+				//we need the connection ID of the base so that we can send data TO the base swf (in the broadcaster stage)
+				ExternalInterface.addCallback("SetConnectionChannel",setConnectionChannel);		
+				
+				//called by C# when the file dialog box is closed using the "OK" button
+				//the only parameter which will passed will be the list of files (as string), separated by "||"
+				ExternalInterface.addCallback("SetSelectedFiles",setSelectedFiles);
+				
+				ExternalInterface.addCallback("SetLoadStatus", setLoadStatus);
+			}
+		}
+	
 		
 		private function setConfiguration( config : String ):void
 		{
@@ -58,5 +91,19 @@ package com.morepaul.tacobell.config
 			m_lid = lid;
 		}
 
+		private function setSelectedFiles( files : String ):void
+		{
+			// Do nothing!
+		}
+
+		private function setLoadStatus():void
+		{
+
+		}
+
+		private function onStatus( event : StatusEvent ):void
+		{
+
+		}
 	}
 }

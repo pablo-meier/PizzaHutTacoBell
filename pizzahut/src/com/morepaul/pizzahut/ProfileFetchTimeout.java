@@ -25,25 +25,19 @@ import java.util.*;
 public class ProfileFetchTimeout extends TimerTask
 {
 
-	private PizzaHutPluginMain m_main; 
-	private ArrayList<HashMap<PlayerAttribute, String>> m_playerInfo;
-	private HashMap<MatchAttribute,String> m_matchInfo;
+	private PizzaHutNewReplayListener m_parent; 
 
-	public ProfileFetchTimeout(PizzaHutPluginMain main, 
-							ArrayList<HashMap<PlayerAttribute, String>> playerInfo,
-							HashMap<MatchAttribute,String> matchInfo)
+	public ProfileFetchTimeout(PizzaHutNewReplayListener parent)
 	{
 		super();
 
-		m_main = main;
-		m_playerInfo = playerInfo;
-		m_matchInfo = matchInfo;
+		m_parent = parent;
 	}
 
 	@Override
 	public void run()
 	{
-		if (m_main.lackingProfiles())
-			m_main.printXmlFile(m_playerInfo, m_matchInfo);
+		System.out.println("Sending from Timeout!");
+		m_parent.sendData();
 	}
 }

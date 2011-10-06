@@ -59,7 +59,7 @@ public class PizzaHutProfileGetter implements ProfileListener
 		// before the parent is done with the matchInfo, etc.  But let's face it -- this isn't gonna happen.
 		if (!m_plugin.lackingProfiles())
 		{
-			m_parent.sendData();
+//			m_parent.sendData();
 		}
 	}
 }

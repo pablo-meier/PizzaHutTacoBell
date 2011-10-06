@@ -33,9 +33,7 @@ package com.morepaul.tacobell
 	import com.morepaul.tacobell.data.*;
 	import com.morepaul.tacobell.file.*;
 
-	/**
-	 * The class that holds it all together.  Initializes, communicates between classes.
-	 */
+
 
 	public class TacoBellPluginMain extends Sprite
 	{
@@ -60,13 +58,12 @@ package com.morepaul.tacobell
 		private var m_placard : TacoMatchPlacard;
 		private var m_animation: TacoMatchEndAnimation;
 		private var m_table: TacoPlayerTable;
-		private var m_curtain: TacoCurtain;
-
-		private var m_localConn : LocalConnection;
-
 
 		private var m_debug : TextField;
 		private var m_bg : Shape;
+
+		/** For XSplit communication. */
+		private var m_localConn : LocalConnection;
 
 		/**
 		 * Initialize the stage.
@@ -87,7 +84,15 @@ package com.morepaul.tacobell
 
 		private function addedToStageListener(e:Event = null):void
 		{
+			removeEventListener(Event.ADDED_TO_STAGE, addedToStageListener);
+
 			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
+
+			stage.addEventListener(Event.RESIZE, resizeListener);
+
+			createExternalCalls();
+
 
 			m_xmlParser = new TacoXmlParser();
 			m_fileLoader = new TacoFileLoader(this);
@@ -101,17 +106,7 @@ package com.morepaul.tacobell
 
 			m_bg = new Shape();
 			m_media = new TacoMediaManager();
-
-			stage.addEventListener(Event.RESIZE, resizeListener);
-
-			if (ExternalInterface.available)
-			{
-				// For XSplit Broadcaster...
-				ExternalInterface.addCallback("SetConfiguration", setConfiguration)
-				// To set up the right LC with the Config SWF
-				ExternalInterface.addCallback("SetConnectionChannel", createLocalConnection)
-			}
-			
+		
 			stage.align = StageAlign.TOP_LEFT;
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 
@@ -132,17 +127,34 @@ package com.morepaul.tacobell
 //			m_fileLoader.loadFile( "/Users/pmeier/tacobell_test1.xml" );
 		}
 
+
+		private function createExternalCalls():void
+		{
+			if (ExternalInterface.available)
+			{
+				// For XSplit Broadcaster...
+				ExternalInterface.addCallback("SetConfiguration", setConfiguration); 			
+				// To set up the right LC with the Config SWF
+				ExternalInterface.addCallback("SetConnectionChannel", createLocalConnection);
+
+				ExternalInterface.addCallback("SetVolume", setVolume);
+				ExternalInterface.addCallback("SetBackgroundColor", setBG);
+
+				ExternalInterface.addCallback("Play", mPlay);
+				ExternalInterface.addCallback("Pause", mPause);
+				ExternalInterface.addCallback("Stop", mStop);
+				ExternalInterface.addCallback("StepForward", mStep);
+				ExternalInterface.addCallback("StepBackward", mStepBackward);
+				ExternalInterface.addCallback("GetPlayState", mGetPlayState);
+			}
+		}
 		
 		// Re-draws the Plugin's components so they scale nicely.
 		private function resizeListener(e:Event):void
 		{
 			m_debug.text = "";
 			debug("Resize called! Width is now " + stage.stageWidth +", height = " + stage.stageHeight);
-			m_bg.graphics.lineStyle();
-			m_bg.graphics.beginFill(BG_COLOR);
-			m_bg.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
-			m_bg.graphics.endFill();
-			this.addChild(m_bg);
+			drawBG(BG_COLOR);	
 
 			this.clearComponents();
 			setHeightsAndWidths();
@@ -151,6 +163,15 @@ package com.morepaul.tacobell
 			m_placard.resize();
 			this.addChild(m_debug);
 
+		}
+
+		private function drawBG( color : uint ) : void
+		{
+			m_bg.graphics.lineStyle();
+			m_bg.graphics.beginFill(color);
+			m_bg.graphics.drawRect(0,0, stage.stageWidth, stage.stageHeight);
+			m_bg.graphics.endFill();
+			this.addChild(m_bg);
 		}
 
 
@@ -217,5 +238,19 @@ package com.morepaul.tacobell
 			} catch (e : ArgumentError) {}
 			return "";
 		}
+
+		public function setBG( color : String, remove : Boolean ) : void
+		{
+			drawBG(uint("0x" + color));
+		}
+
+		public function setVolume( vol : int ):void { }
+		public function mPlay():void { }
+		public function mPause():void { }
+		public function mStop():void { }
+		public function mStep():void { }
+		public function mStepForward():void { }
+		public function mStepBackward():void { }
+		public function mGetPlayState():int { return 1; }
 	}
 }
